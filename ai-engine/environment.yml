@@ -1,0 +1,16 @@
+name: ski-ai
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - opencv
+  - pip:
+      - --index-url https://pypi.org/simple
+      - fastapi
+      - uvicorn[standard]
+      - python-dotenv
+      - python-multipart
+      - redis

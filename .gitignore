@@ -1,0 +1,33 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+
+# Python
+ai-engine/__pycache__/
+ai-engine/**/__pycache__/
+ai-engine/*.pyc
+ai-engine/.env
+ai-engine/data/chroma/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Data
+data/
+models/*.pt
