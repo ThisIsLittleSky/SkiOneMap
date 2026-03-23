@@ -58,18 +58,21 @@
             <input v-model="newCam.description" placeholder="可选描述" />
           </div>
         </div>
+        <div class="coord-hint">
+          3D坐标参考范围：X / Z 约 <strong>-50 ~ 50</strong>（雪道平面水平方向），Y 约 <strong>0 ~ 30</strong>（地面以上高度）。建议从 X=0, Y=5, Z=0 开始，逐步调整至合适位置。
+        </div>
         <div class="form-row">
           <div class="form-item">
-            <label>3D场景 X</label>
-            <input v-model.number="newCam.posX" type="number" step="0.1" placeholder="0" />
+            <label>3D场景 X（左右，-50~50）</label>
+            <input v-model.number="newCam.posX" type="number" step="1" placeholder="-50 ~ 50" />
           </div>
           <div class="form-item">
-            <label>3D场景 Y</label>
-            <input v-model.number="newCam.posY" type="number" step="0.1" placeholder="0" />
+            <label>3D场景 Y（高度，0~30）</label>
+            <input v-model.number="newCam.posY" type="number" step="1" placeholder="0 ~ 30" />
           </div>
           <div class="form-item">
-            <label>3D场景 Z</label>
-            <input v-model.number="newCam.posZ" type="number" step="0.1" placeholder="0" />
+            <label>3D场景 Z（前后，-50~50）</label>
+            <input v-model.number="newCam.posZ" type="number" step="1" placeholder="-50 ~ 50" />
           </div>
           <div class="form-item">
             <label>状态</label>
@@ -350,6 +353,17 @@ tr:hover td { background: rgba(21,101,192,0.06); }
 }
 .inline-input:focus { border-color: #1976d2; }
 .num-input { width: 60px; min-width: 50px; }
+
+.coord-hint {
+  font-size: 12px;
+  color: #546e7a;
+  background: #0a1929;
+  border: 1px solid #1e3a5f;
+  border-radius: 4px;
+  padding: 8px 12px;
+  line-height: 1.6;
+}
+.coord-hint strong { color: #00e5ff; }
 
 .message { padding: 8px 14px; border-radius: 4px; font-size: 13px; }
 .message.success { background: rgba(46,125,50,0.15); color: #81c784; border: 1px solid #2e7d32; }

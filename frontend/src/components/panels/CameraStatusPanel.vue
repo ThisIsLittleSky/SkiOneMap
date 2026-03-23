@@ -19,7 +19,12 @@
         </div>
       </div>
       <div class="cam-list">
-        <div v-for="cam in cameras" :key="cam.id" class="cam-row">
+        <div
+          v-for="cam in cameras" :key="cam.id"
+          class="cam-row"
+          :class="{ active: selectedId === cam.id }"
+          @click="emit('select-camera', cam.id)"
+        >
           <span class="cam-dot" :class="cam.status === 'ONLINE' ? 'online' : 'offline'"></span>
           <span class="cam-name">{{ cam.name }}</span>
           <span class="cam-status" :class="cam.status === 'ONLINE' ? 'online' : 'offline'">
@@ -36,7 +41,8 @@
 import { computed } from 'vue'
 import type { CameraInfo } from '@/api'
 
-const props = defineProps<{ cameras: CameraInfo[] }>()
+const props = defineProps<{ cameras: CameraInfo[]; selectedId?: number | null }>()
+const emit = defineEmits<{ (e: 'select-camera', id: number): void }>()
 
 const onlineCount = computed(() => props.cameras.filter(c => c.status === 'ONLINE').length)
 const offlineCount = computed(() => props.cameras.filter(c => c.status !== 'ONLINE').length)
@@ -57,7 +63,9 @@ const offlineCount = computed(() => props.cameras.filter(c => c.status !== 'ONLI
 .divider { width: 1px; height: 30px; background: #1e3a5f; }
 
 .cam-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-.cam-row { display: flex; align-items: center; gap: 7px; font-size: 12px; padding: 3px 0; }
+.cam-row { display: flex; align-items: center; gap: 7px; font-size: 12px; padding: 5px 6px; border-radius: 4px; cursor: pointer; transition: background 0.15s; }
+.cam-row:hover { background: rgba(0, 229, 255, 0.06); }
+.cam-row.active { background: rgba(0, 229, 255, 0.12); border: 1px solid #00e5ff44; }
 .cam-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .cam-dot.online { background: #00e5ff; box-shadow: 0 0 5px #00e5ff88; }
 .cam-dot.offline { background: #607d8b; }

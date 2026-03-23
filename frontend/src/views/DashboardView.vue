@@ -31,7 +31,7 @@
     <!-- 主体：3D 场景 + 绝对定位面板 -->
     <div class="scene-wrapper">
       <!-- 3D 场景 -->
-      <SkiScene3D :cameras="cameras" class="scene-3d" />
+      <SkiScene3D :cameras="cameras" :selected-camera-id="selectedCameraId" class="scene-3d" />
 
       <!-- 左侧面板（上下两个） -->
       <div class="panel-container left-top">
@@ -43,7 +43,7 @@
 
       <!-- 右侧面板（上下两个） -->
       <div class="panel-container right-top">
-        <CameraStatusPanel :cameras="cameras" />
+      <CameraStatusPanel :cameras="cameras" :selected-id="selectedCameraId" @select-camera="selectedCameraId = $event" />
       </div>
       <div class="panel-container right-bottom">
         <SafetyIndexPanel />
@@ -85,6 +85,7 @@ const alertStore = useAlertStore()
 const cameras = ref<CameraInfo[]>([])
 const weatherCityCode = ref('101090301')
 const currentTime = ref('')
+const selectedCameraId = ref<number | null>(null)
 
 let timer: ReturnType<typeof setInterval>
 

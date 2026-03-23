@@ -38,7 +38,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { CameraInfo } from '@/api'
 
-const props = defineProps<{ cameras: CameraInfo[] }>()
+const props = defineProps<{ cameras: CameraInfo[]; selectedCameraId?: number | null }>()
 
 const containerEl = ref<HTMLElement>()
 let renderer: THREE.WebGLRenderer
@@ -63,7 +63,7 @@ function init() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.shadowMap.enabled = true
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.2
+  renderer.toneMappingExposure = 2.0
   el.appendChild(renderer.domElement)
 
   // Scene
@@ -75,13 +75,13 @@ function init() {
   camera.position.set(0, 80, 150)
 
   // Lights
-  const ambient = new THREE.AmbientLight(0xb0c4de, 0.6)
+  const ambient = new THREE.AmbientLight(0xb0c4de, 0.9)
   scene.add(ambient)
   const sun = new THREE.DirectionalLight(0xfff5e0, 1.4)
   sun.position.set(80, 120, 60)
   sun.castShadow = true
   scene.add(sun)
-  const fill = new THREE.DirectionalLight(0x8ab4f8, 0.4)
+  const fill = new THREE.DirectionalLight(0x8ab4f8, 1.0)
   fill.position.set(-60, 40, -80)
   scene.add(fill)
 
@@ -107,6 +107,7 @@ function init() {
       const scale = 100 / maxDim
       model.scale.setScalar(scale)
       model.position.sub(center.multiplyScalar(scale))
+      model.position.y += size.y * scale * 0.3
       model.traverse(child => {
         if ((child as THREE.Mesh).isMesh) {
           child.castShadow = true
@@ -285,6 +286,24 @@ onUnmounted(() => {
 })
 
 watch(() => props.cameras, buildCameraMeshes, { deep: true })
+
+watch(() => props.selectedCameraId, (id) => {
+  if (id == null) {
+    activeCamera.value = null
+    return
+  }
+  const found = camMeshes.find(c => c.data.id === id)
+  if (!found) return
+  activeCamera.value = found.data
+  // 将摄像头位置投影到屏幕中心附近显示弹窗
+  const el = containerEl.value!
+  const rect = el.getBoundingClientRect()
+  const pos = found.mesh.position.clone()
+  pos.project(camera)
+  const x = (pos.x * 0.5 + 0.5) * rect.width + rect.left
+  const y = (-pos.y * 0.5 + 0.5) * rect.height + rect.top
+  popupStyle.value = { left: `${x + 12}px`, top: `${y - 20}px` }
+})
 </script>
 
 <style scoped>
@@ -320,10 +339,10 @@ watch(() => props.cameras, buildCameraMeshes, { deep: true })
 .cam-close:hover { color: #fff; }
 
 .cam-popup-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
-.cam-row { display: flex; gap: 8px; font-size: 12px; }
-.label { color: #546e7a; width: 36px; flex-shrink: 0; }
+.cam-row { display: flex; gap: 8px; font-size: 12px; color: #cfd8dc; }
+.label { color: #90a4ae; width: 36px; flex-shrink: 0; }
 .online { color: #00e5ff; }
-.offline { color: #607d8b; }
+.offline { color: #90a4ae; }
 
 .popup-enter-active, .popup-leave-active { transition: opacity 0.15s, transform 0.15s; }
 .popup-enter-from, .popup-leave-to { opacity: 0; transform: translateY(-4px); }
