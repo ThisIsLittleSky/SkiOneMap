@@ -143,7 +143,7 @@
 
     <!-- 视频上传弹窗 -->
     <Teleport to="body">
-      <div v-if="uploadTarget" class="overlay" @click.self="uploadTarget = null">
+      <div v-if="uploadTarget" class="overlay" @click.self="if (!uploading && !analyzing) uploadTarget = null">
         <div class="upload-modal">
           <div class="modal-header">
             <span>向【{{ uploadTarget.name }}】上传事故视频</span>
@@ -157,9 +157,12 @@
             <div class="progress-bar" v-if="uploading">
               <div class="progress-fill" :style="{ width: uploadPct + '%' }"></div>
             </div>
+            <div v-if="analyzing" class="analyzing-hint">
+              <span class="analyzing-dot"></span> AI 分析中，请稍候...
+            </div>
             <div v-if="uploadMsg2" class="message" :class="uploadErr2 ? 'error' : 'success'">{{ uploadMsg2 }}</div>
-            <button class="btn-primary" @click="handleUpload" :disabled="!uploadFile || uploading">
-              {{ uploading ? `上传并分析 ${uploadPct}%` : '上传并开始分析' }}
+            <button class="btn-primary" @click="handleUpload" :disabled="!uploadFile || uploading || analyzing">
+              {{ uploading ? `上传中 ${uploadPct}%` : analyzing ? '分析中...' : '上传并开始分析' }}
             </button>
           </div>
         </div>
@@ -172,7 +175,7 @@
 import { ref, onMounted } from 'vue'
 import {
   getSceneConfig, saveSceneConfig, listCameras, addCamera, updateCamera, deleteCamera,
-  uploadCameraVideo, type SceneConfig, type CameraInfo
+  uploadCameraVideo, getTaskStatus, type SceneConfig, type CameraInfo
 } from '@/api'
 
 const config = ref<SceneConfig>({
@@ -272,19 +275,53 @@ function handleFileChange(e: Event) {
   if (t.files?.length) { uploadFile.value = t.files[0]; uploadMsg2.value = '' }
 }
 
+const analyzing = ref(false)
+
 async function handleUpload() {
   if (!uploadFile.value || !uploadTarget.value) return
   uploading.value = true; uploadPct.value = 0; uploadMsg2.value = ''
+  let taskId: number | null = null
   try {
     const r = await uploadCameraVideo(uploadTarget.value.id, uploadFile.value, p => { uploadPct.value = p })
-    uploadMsg2.value = `上传成功！任务ID: ${r.data.taskId}，正在分析...`
+    taskId = r.data.taskId
     uploadErr2.value = false
     uploadFile.value = null
     if (fileInput.value) fileInput.value.value = ''
   } catch (err: any) {
     uploadMsg2.value = `上传失败: ${err.response?.data?.error || err.message}`
     uploadErr2.value = true
-  } finally { uploading.value = false }
+    uploading.value = false
+    return
+  }
+  uploading.value = false
+
+  // 轮询任务状态
+  analyzing.value = true
+  uploadMsg2.value = `上传成功，正在分析（任务 #${taskId}）...`
+  const DONE_STATES = ['DONE', 'COMPLETED', 'FAILED', 'ERROR']
+  const poll = async () => {
+    try {
+      const s = await getTaskStatus(taskId!)
+      const status = s.data.status
+      if (DONE_STATES.includes(status)) {
+        analyzing.value = false
+        if (status === 'FAILED' || status === 'ERROR') {
+          uploadMsg2.value = `分析失败（任务 #${taskId}）`
+          uploadErr2.value = true
+        } else {
+          uploadMsg2.value = `分析完成（任务 #${taskId}）`
+          uploadErr2.value = false
+        }
+      } else {
+        setTimeout(poll, 3000)
+      }
+    } catch {
+      analyzing.value = false
+      uploadMsg2.value = `查询分析状态失败（任务 #${taskId}）`
+      uploadErr2.value = true
+    }
+  }
+  poll()
 }
 
 onMounted(() => { loadConfig(); loadCameras() })
@@ -378,4 +415,22 @@ tr:hover td { background: rgba(21,101,192,0.06); }
 .file-label input { display: none; }
 .progress-bar { height: 6px; background: #1a2e44; border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; background: #42a5f5; transition: width 0.2s; }
+
+.analyzing-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #00e5ff;
+  padding: 4px 0;
+}
+.analyzing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00e5ff;
+  animation: blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 </style>
