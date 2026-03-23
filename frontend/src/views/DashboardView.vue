@@ -12,7 +12,7 @@
       </div>
       <div class="header-center">
         <div class="header-title">
-          <span class="title-glow">雪景智判一张图</span>
+          <span class="title-glow">雪境智判一张图</span>
         </div>
         <div class="title-badge">AI · 数字孪生</div>
       </div>
