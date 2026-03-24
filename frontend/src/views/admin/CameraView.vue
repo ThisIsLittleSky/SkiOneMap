@@ -143,11 +143,11 @@
 
     <!-- 视频上传弹窗 -->
     <Teleport to="body">
-      <div v-if="uploadTarget" class="overlay" @click.self="if (!uploading && !analyzing) uploadTarget = null">
+      <div v-if="uploadTarget" class="overlay" @click.self="!uploading && !analyzing && closeUploadModal()">
         <div class="upload-modal">
           <div class="modal-header">
             <span>向【{{ uploadTarget.name }}】上传事故视频</span>
-            <button class="btn-close" @click="uploadTarget = null">×</button>
+            <button class="btn-close" @click="closeUploadModal">×</button>
           </div>
           <div class="modal-body">
             <label class="file-label">
@@ -273,6 +273,11 @@ function openUpload(cam: CameraInfo) {
 function handleFileChange(e: Event) {
   const t = e.target as HTMLInputElement
   if (t.files?.length) { uploadFile.value = t.files[0]; uploadMsg2.value = '' }
+}
+
+function closeUploadModal() {
+  if (uploading.value || analyzing.value) return
+  uploadTarget.value = null
 }
 
 const analyzing = ref(false)

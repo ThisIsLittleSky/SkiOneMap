@@ -1,7 +1,9 @@
 package com.ski.monitor.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ski.monitor.entity.SceneConfig;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface SceneConfigRepository extends JpaRepository<SceneConfig, Long> {
+@Mapper
+public interface SceneConfigRepository extends BaseMapper<SceneConfig> {
 }

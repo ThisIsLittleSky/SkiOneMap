@@ -1,32 +1,27 @@
 package com.ski.monitor.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "videos")
+@TableName("videos")
 public class Video {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @TableField("user_id")
     private Long userId;
 
-    @Column(nullable = false)
     private String filename;
 
-    @Column(nullable = false, length = 500)
     private String filepath;
 
     private Integer duration;
 
-    @Column(length = 20)
     private String status = "UPLOADED";
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -1,36 +1,32 @@
 package com.ski.monitor.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "alerts")
+@TableName("alerts")
 public class Alert {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "task_id", nullable = false)
+    @TableField("task_id")
     private Long taskId;
 
-    @Column(name = "alert_type", nullable = false, length = 50)
+    @TableField("alert_type")
     private String alertType;
 
-    @Column(length = 20)
     private String severity = "WARNING";
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "position_x")
+    @TableField("position_x")
     private Float positionX;
 
-    @Column(name = "position_y")
+    @TableField("position_y")
     private Float positionY;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

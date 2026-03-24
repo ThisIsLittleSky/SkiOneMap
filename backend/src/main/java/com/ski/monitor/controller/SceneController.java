@@ -33,39 +33,45 @@ public class SceneController {
         this.taskService = taskService;
     }
 
-    // ── 场地配置 ──────────────────────────────────────────────
-
     @GetMapping("/config")
     public ResponseEntity<SceneConfig> getConfig() {
-        SceneConfig cfg = sceneConfigRepository.findById(1L)
-                .orElseGet(() -> sceneConfigRepository.save(new SceneConfig()));
+        SceneConfig cfg = sceneConfigRepository.selectById(1L);
+        if (cfg == null) {
+            cfg = new SceneConfig();
+            sceneConfigRepository.insert(cfg);
+        }
         return ResponseEntity.ok(cfg);
     }
 
     @PutMapping("/config")
     public ResponseEntity<SceneConfig> saveConfig(@RequestBody SceneConfig config) {
         config.setId(1L);
-        return ResponseEntity.ok(sceneConfigRepository.save(config));
+        if (sceneConfigRepository.selectById(1L) == null) {
+            sceneConfigRepository.insert(config);
+        } else {
+            sceneConfigRepository.updateById(config);
+        }
+        return ResponseEntity.ok(config);
     }
-
-    // ── 摄像头 CRUD ───────────────────────────────────────────
 
     @GetMapping("/cameras")
     public ResponseEntity<List<Camera>> listCameras() {
-        return ResponseEntity.ok(cameraRepository.findAll());
+        return ResponseEntity.ok(cameraRepository.selectList(null));
     }
 
     @PostMapping("/cameras")
     public ResponseEntity<Camera> addCamera(@RequestBody Camera camera) {
         camera.setId(null);
-        return ResponseEntity.ok(cameraRepository.save(camera));
+        cameraRepository.insert(camera);
+        return ResponseEntity.ok(camera);
     }
 
     @PutMapping("/cameras/{id}")
     public ResponseEntity<?> updateCamera(@PathVariable Long id, @RequestBody Camera camera) {
-        if (!cameraRepository.existsById(id)) return ResponseEntity.notFound().build();
+        if (cameraRepository.selectById(id) == null) return ResponseEntity.notFound().build();
         camera.setId(id);
-        return ResponseEntity.ok(cameraRepository.save(camera));
+        cameraRepository.updateById(camera);
+        return ResponseEntity.ok(camera);
     }
 
     @DeleteMapping("/cameras/{id}")
@@ -74,13 +80,11 @@ public class SceneController {
         return ResponseEntity.ok(Map.of("message", "deleted"));
     }
 
-    // ── 向摄像头上传视频并触发分析 ────────────────────────────
-
     @PostMapping("/cameras/{id}/upload")
     public ResponseEntity<?> uploadAndAnalyze(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file) {
-        Camera camera = cameraRepository.findById(id).orElse(null);
+        Camera camera = cameraRepository.selectById(id);
         if (camera == null) return ResponseEntity.notFound().build();
         try {
             var video = videoService.uploadVideo(file, 1L);

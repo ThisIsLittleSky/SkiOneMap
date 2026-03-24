@@ -44,14 +44,15 @@ public class VideoService {
         video.setFilename(originalFilename);
         video.setFilepath(filePath.toString());
         video.setStatus("UPLOADED");
-        return videoRepository.save(video);
+        videoRepository.insert(video);
+        return video;
     }
 
     public Video getById(Long id) {
-        return videoRepository.findById(id).orElse(null);
+        return videoRepository.selectById(id);
     }
 
     public List<Video> listAll() {
-        return videoRepository.findAll();
+        return videoRepository.selectList(null);
     }
 }

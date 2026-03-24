@@ -1,40 +1,31 @@
 package com.ski.monitor.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "cameras")
+@TableName("cameras")
 public class Camera {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 200)
     private String description;
 
-    /** 摄像头在 3D 场景中的 X 坐标 */
-    @Column(name = "pos_x")
+    @TableField("pos_x")
     private Double posX = 0.0;
 
-    /** 摄像头在 3D 场景中的 Y 坐标 */
-    @Column(name = "pos_y")
+    @TableField("pos_y")
     private Double posY = 0.0;
 
-    /** 摄像头在 3D 场景中的 Z 坐标 */
-    @Column(name = "pos_z")
+    @TableField("pos_z")
     private Double posZ = 0.0;
 
-    /** 摄像头状态: ONLINE / OFFLINE */
-    @Column(length = 20)
     private String status = "ONLINE";
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

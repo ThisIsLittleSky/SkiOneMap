@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useAlertStore } from '@/stores/alertStore'
 import { listTasks, getTaskTracks, type TrackSummary } from '@/api'
@@ -127,17 +127,33 @@ const tab = ref<'alerts' | 'tasks'>('alerts')
 const tasks = ref<Array<{ id: number; videoId: number; status: string; createdAt: string }>>([])
 const tasksLoading = ref(false)
 const taskDetail = ref<TrackSummary | null>(null)
+let tasksPollTimer: number | null = null
 
 async function loadTasks() {
   tasksLoading.value = true
   try {
     const res = await listTasks()
-    tasks.value = res.data
+    tasks.value = [...res.data].sort((a, b) => b.id - a.id)
   } catch (err) {
     console.error('Failed to load tasks:', err)
   } finally {
     tasksLoading.value = false
   }
+}
+
+function stopTaskPolling() {
+  if (tasksPollTimer !== null) {
+    window.clearInterval(tasksPollTimer)
+    tasksPollTimer = null
+  }
+}
+
+function startTaskPolling() {
+  stopTaskPolling()
+  loadTasks()
+  tasksPollTimer = window.setInterval(() => {
+    if (tab.value === 'tasks') loadTasks()
+  }, 3000)
 }
 
 async function showTaskDetail(taskId: number) {
@@ -160,6 +176,19 @@ function formatDate(dateStr: string): string {
   if (!dateStr) return ''
   try { return new Date(dateStr).toLocaleString('zh-CN') } catch { return dateStr }
 }
+
+watch(tab, (value) => {
+  if (value === 'tasks') startTaskPolling()
+  else stopTaskPolling()
+}, { immediate: true })
+
+watch(() => alertStore.alerts.length, () => {
+  if (tab.value === 'tasks') loadTasks()
+})
+
+onBeforeUnmount(() => {
+  stopTaskPolling()
+})
 </script>
 
 <style scoped>

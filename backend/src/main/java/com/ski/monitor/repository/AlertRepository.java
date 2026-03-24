@@ -1,9 +1,9 @@
 package com.ski.monitor.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ski.monitor.entity.Alert;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface AlertRepository extends JpaRepository<Alert, Long> {
-    List<Alert> findByTaskIdOrderByCreatedAtDesc(Long taskId);
+@Mapper
+public interface AlertRepository extends BaseMapper<Alert> {
 }

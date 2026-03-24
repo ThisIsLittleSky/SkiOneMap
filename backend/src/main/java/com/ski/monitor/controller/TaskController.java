@@ -1,5 +1,6 @@
 package com.ski.monitor.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ski.monitor.entity.Alert;
@@ -78,7 +79,8 @@ public class TaskController {
         }
         try {
             JsonNode root = objectMapper.readTree(task.getResult());
-            List<Alert> alerts = alertRepository.findByTaskIdOrderByCreatedAtDesc(id);
+            List<Alert> alerts = alertRepository.selectList(
+                    new QueryWrapper<Alert>().eq("task_id", id).orderByDesc("created_at"));
             return ResponseEntity.ok(Map.of(
                     "taskId", id,
                     "status", task.getStatus(),

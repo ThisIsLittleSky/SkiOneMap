@@ -65,7 +65,7 @@ public class RedisSubscriberService {
                         alert.setDescription(alertNode.has("description") ? alertNode.get("description").asText() : "");
                         alert.setPositionX(alertNode.has("positionX") ? (float) alertNode.get("positionX").asDouble() : null);
                         alert.setPositionY(alertNode.has("positionY") ? (float) alertNode.get("positionY").asDouble() : null);
-                        alertRepository.save(alert);
+                        alertRepository.insert(alert);
                     }
                 }
 

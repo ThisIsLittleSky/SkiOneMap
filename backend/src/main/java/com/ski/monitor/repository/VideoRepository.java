@@ -1,9 +1,9 @@
 package com.ski.monitor.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ski.monitor.entity.Video;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface VideoRepository extends JpaRepository<Video, Long> {
-    List<Video> findByUserIdOrderByCreatedAtDesc(Long userId);
+@Mapper
+public interface VideoRepository extends BaseMapper<Video> {
 }

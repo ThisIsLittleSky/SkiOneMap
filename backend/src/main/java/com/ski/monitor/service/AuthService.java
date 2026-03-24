@@ -1,5 +1,6 @@
 package com.ski.monitor.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ski.monitor.entity.User;
 import com.ski.monitor.repository.UserRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,12 +25,9 @@ public class AuthService {
         this.redisTemplate = redisTemplate;
     }
 
-    /**
-     * 登录验证，成功返回 token，失败返回 null。
-     * 密码支持明文和 MD5 两种存储方式（自动识别）。
-     */
     public String login(String username, String password) {
-        User user = userRepository.findByUsername(username).orElse(null);
+        User user = userRepository.selectOne(
+                new QueryWrapper<User>().eq("username", username));
         if (user == null) return null;
 
         boolean matched = user.getPassword().equals(password)
@@ -46,13 +44,11 @@ public class AuthService {
         return token;
     }
 
-    /** 验证 token 是否有效，返回用户名；无效返回 null。 */
     public String verify(String token) {
         if (token == null || token.isBlank()) return null;
         return redisTemplate.opsForValue().get(TOKEN_PREFIX + token);
     }
 
-    /** 登出，删除 token。 */
     public void logout(String token) {
         if (token != null) redisTemplate.delete(TOKEN_PREFIX + token);
     }

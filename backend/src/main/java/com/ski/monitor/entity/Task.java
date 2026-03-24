@@ -1,30 +1,26 @@
 package com.ski.monitor.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "tasks")
+@TableName("tasks")
 public class Task {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "video_id", nullable = false)
+    @TableField("video_id")
     private Long videoId;
 
-    @Column(length = 20)
     private String status = "PENDING";
 
-    @Column(columnDefinition = "TEXT")
     private String result;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

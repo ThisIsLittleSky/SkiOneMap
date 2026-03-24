@@ -1,5 +1,6 @@
 package com.ski.monitor.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ski.monitor.entity.Task;
 import com.ski.monitor.entity.Video;
 import com.ski.monitor.repository.TaskRepository;
@@ -32,7 +33,7 @@ public class TaskService {
     }
 
     public Task createTask(Long videoId) {
-        Video video = videoRepository.findById(videoId).orElse(null);
+        Video video = videoRepository.selectById(videoId);
         if (video == null) {
             throw new IllegalArgumentException("Video not found: " + videoId);
         }
@@ -40,7 +41,7 @@ public class TaskService {
         Task task = new Task();
         task.setVideoId(videoId);
         task.setStatus("PENDING");
-        task = taskRepository.save(task);
+        taskRepository.insert(task);
 
         String message = String.format(
                 "{\"taskId\":%d,\"videoId\":%d,\"videoPath\":\"%s\"}",
@@ -50,42 +51,44 @@ public class TaskService {
         log.info("Task {} dispatched to Redis queue for video {}", task.getId(), videoId);
 
         video.setStatus("PROCESSING");
-        videoRepository.save(video);
+        videoRepository.updateById(video);
 
         return task;
     }
 
     public Task getById(Long id) {
-        return taskRepository.findById(id).orElse(null);
+        return taskRepository.selectById(id);
     }
 
     public List<Task> getByVideoId(Long videoId) {
-        return taskRepository.findByVideoIdOrderByCreatedAtDesc(videoId);
+        return taskRepository.selectList(
+                new QueryWrapper<Task>().eq("video_id", videoId).orderByDesc("created_at"));
     }
 
     public Task updateStatus(Long id, String status) {
-        Task task = taskRepository.findById(id).orElse(null);
+        Task task = taskRepository.selectById(id);
         if (task != null) {
             task.setStatus(status);
             task.setUpdatedAt(LocalDateTime.now());
-            return taskRepository.save(task);
+            taskRepository.updateById(task);
+            return task;
         }
         return null;
     }
 
     public Task updateResult(Long id, String result, String status) {
-        Task task = taskRepository.findById(id).orElse(null);
+        Task task = taskRepository.selectById(id);
         if (task != null) {
             task.setResult(result);
             task.setStatus(status);
             task.setUpdatedAt(LocalDateTime.now());
-            task = taskRepository.save(task);
+            taskRepository.updateById(task);
 
             if ("COMPLETED".equals(status) || "FAILED".equals(status)) {
-                Video video = videoRepository.findById(task.getVideoId()).orElse(null);
+                Video video = videoRepository.selectById(task.getVideoId());
                 if (video != null) {
                     video.setStatus("COMPLETED".equals(status) ? "ANALYZED" : "FAILED");
-                    videoRepository.save(video);
+                    videoRepository.updateById(video);
                 }
             }
             return task;
@@ -94,6 +97,6 @@ public class TaskService {
     }
 
     public List<Task> listAll() {
-        return taskRepository.findAll();
+        return taskRepository.selectList(null);
     }
 }

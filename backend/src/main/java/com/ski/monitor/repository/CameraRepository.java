@@ -1,7 +1,9 @@
 package com.ski.monitor.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ski.monitor.entity.Camera;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface CameraRepository extends JpaRepository<Camera, Long> {
+@Mapper
+public interface CameraRepository extends BaseMapper<Camera> {
 }

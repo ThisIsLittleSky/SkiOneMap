@@ -149,9 +149,12 @@ cd backend
 
 ```bash
 cd ai-engine
-pip install -r requirements.txt
-export OPENAI_API_KEY=your_key_here
-uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+conda env remove -n ski-ai
+conda env create -f environment.yml
+conda activate ski-ai
+pip install -i https://pypi.org/simple --no-cache-dir -r requirements.txt
+set OPENAI_API_KEY=your_key_here
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 ### 4. 数据库初始化
