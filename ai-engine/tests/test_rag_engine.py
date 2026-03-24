@@ -67,7 +67,7 @@ class TestGenerateLiabilitySuggestion:
 
     def test_uses_fallback_when_no_api_key(self, engine):
         """没有 API key 时应自动使用 fallback。"""
-        engine.openai_api_key = ""
+        engine.qwen_api_key = ""
         alerts = [{"alertType": "WRONG_WAY", "trackId": 1, "severity": "WARNING"}]
         tracks = []
         result = engine.generate_liability_suggestion(alerts, tracks)
@@ -75,14 +75,14 @@ class TestGenerateLiabilitySuggestion:
         assert len(result) > 0
 
     def test_uses_fallback_when_api_key_is_placeholder(self, engine):
-        engine.openai_api_key = "your_openai_api_key"
+        engine.qwen_api_key = "your_qwen_api_key"
         alerts = [{"alertType": "OVERSPEED", "trackId": 2, "severity": "WARNING"}]
         result = engine.generate_liability_suggestion(alerts, [])
         assert isinstance(result, str)
         assert "超速" in result or "OVERSPEED" in result
 
     def test_empty_alerts_returns_no_liability(self, engine):
-        engine.openai_api_key = ""
+        engine.qwen_api_key = ""
         result = engine.generate_liability_suggestion([], [])
         assert "未检测到" in result
 

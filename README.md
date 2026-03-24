@@ -8,7 +8,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6db33f?logo=spring)](https://spring.io/projects/spring-boot)[![FastAPI](https://img.shields.io/badge/FastAPI-0.11x-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-r183-black?logo=three.js)](https://threejs.org/)
 
-> 让每一片雪坡，都有 AI 的眼睛。
+> 通过”一张图“，掌控雪场事故、实时分析
 
 </div>
 
@@ -93,10 +93,18 @@
 git clone https://github.com/ThisIsLittleSky/ski-one-map.git
 cd ski-one-map
 
-# 2. 配置 OpenAI API Key（用于 RAG 定责）
-export OPENAI_API_KEY=your_key_here
-# Windows PowerShell:
-# $env:OPENAI_API_KEY="your_key_here"
+# 2. 配置阿里千问 API Key（用于 RAG 定责）
+# Linux / macOS（永久写入 ~/.bashrc 或 ~/.zshrc）：
+export QWEN_API_KEY=your_key_here
+# export QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+# export QWEN_LLM_MODEL=qwen3-max-2026-01-23
+# export QWEN_EMBEDDING_MODEL=qwen3-vl-embedding
+
+# Windows CMD（永久用户级，需重新打开终端生效）：
+# setx QWEN_API_KEY "your_key_here"
+
+# Windows PowerShell（永久用户级，需重新打开终端生效）：
+# [Environment]::SetEnvironmentVariable("QWEN_API_KEY","your_key_here","User")
 
 # 3. 一键启动全栈服务
 docker-compose up -d
@@ -153,7 +161,18 @@ conda env remove -n ski-ai
 conda env create -f environment.yml
 conda activate ski-ai
 pip install -i https://pypi.org/simple --no-cache-dir -r requirements.txt
-set OPENAI_API_KEY=your_key_here
+# 设置永久环境变量（CMD，需以管理员身份运行，设置后重新打开终端生效）
+setx QWEN_API_KEY "your_key_here"
+setx QWEN_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
+setx QWEN_LLM_MODEL "qwen3-max-2026-01-23"
+setx QWEN_EMBEDDING_MODEL "qwen3-vl-embedding"
+# PowerShell 永久设置（用户级别）：
+# [Environment]::SetEnvironmentVariable("QWEN_API_KEY","your_key_here","User")
+# [Environment]::SetEnvironmentVariable("QWEN_BASE_URL","https://dashscope.aliyuncs.com/compatible-mode/v1","User")
+# [Environment]::SetEnvironmentVariable("QWEN_LLM_MODEL","qwen3-max-2026-01-23","User")
+# [Environment]::SetEnvironmentVariable("QWEN_EMBEDDING_MODEL","qwen3-vl-embedding","User")
+
+# 设置完成后重新打开终端，再启动服务
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 

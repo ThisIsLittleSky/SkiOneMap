@@ -4,6 +4,10 @@ ultralytics==8.4.24
 llama-index==0.10.24
 chromadb==0.4.24
 openai==1.14.3
+httpx<0.28
+llama-index-llms-openai==0.1.13
+llama-index-embeddings-openai==0.1.11
+llama-index-vector-stores-chroma==0.1.6
 redis==5.0.3
 python-dotenv==1.0.1
 python-multipart==0.0.9

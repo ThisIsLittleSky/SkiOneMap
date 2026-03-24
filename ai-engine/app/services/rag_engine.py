@@ -1,20 +1,44 @@
 """
 RAG 定责建议引擎
-使用 LlamaIndex + ChromaDB 向量检索 + OpenAI LLM 生成定责建议
+使用 LlamaIndex + ChromaDB 向量检索 + 阿里千问兼容接口生成定责建议
 """
 import os
 import logging
 from typing import List, Dict, Any
+
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "knowledge")
 
 
+class QwenCompatibleEmbedding:
+    def __init__(self, model: str, api_key: str, base_url: str):
+        self.model = model
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
+
+    def get_text_embedding(self, text: str) -> List[float]:
+        response = self.client.embeddings.create(model=self.model, input=text)
+        return response.data[0].embedding
+
+    def get_query_embedding(self, query: str) -> List[float]:
+        return self.get_text_embedding(query)
+
+    def get_text_embedding_batch(self, texts: List[str], **kwargs) -> List[List[float]]:
+        response = self.client.embeddings.create(model=self.model, input=texts)
+        return [item.embedding for item in response.data]
+
+
 class RAGEngine:
     def __init__(self):
         self.chroma_path = os.getenv("CHROMA_DB_PATH", "data/chroma")
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
+        self.qwen_api_key = os.getenv("QWEN_API_KEY", "")
+        self.qwen_base_url = os.getenv(
+            "QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
+        self.llm_model = os.getenv("QWEN_LLM_MODEL", "qwen3-max-2026-01-23")
+        self.embedding_model = os.getenv("QWEN_EMBEDDING_MODEL", "qwen3-vl-embedding")
         self.index = None
         self._initialized = False
 
@@ -37,23 +61,24 @@ class RAGEngine:
             Settings,
         )
         from llama_index.vector_stores.chroma import ChromaVectorStore
-        from llama_index.embeddings.openai import OpenAIEmbedding
-        from llama_index.llms.openai import OpenAI
+        from llama_index.llms.openai import OpenAI as LlamaOpenAI
         import chromadb
 
         knowledge_dir = os.path.abspath(KNOWLEDGE_DIR)
         if not os.path.isdir(knowledge_dir) or not os.listdir(knowledge_dir):
             raise FileNotFoundError(f"Knowledge directory empty or missing: {knowledge_dir}")
 
-        # 配置全局 LLM 和 Embedding
-        Settings.llm = OpenAI(
-            model="gpt-4o-mini",
-            api_key=self.openai_api_key,
+        # 通过 OpenAI 兼容接口接入阿里千问
+        Settings.llm = LlamaOpenAI(
+            model=self.llm_model,
+            api_key=self.qwen_api_key,
+            api_base=self.qwen_base_url,
             temperature=0.2,
         )
-        Settings.embed_model = OpenAIEmbedding(
-            model="text-embedding-3-small",
-            api_key=self.openai_api_key,
+        Settings.embed_model = QwenCompatibleEmbedding(
+            model=self.embedding_model,
+            api_key=self.qwen_api_key,
+            base_url=self.qwen_base_url,
         )
 
         # 初始化 ChromaDB
@@ -93,7 +118,7 @@ class RAGEngine:
         返回:
             str: LLM 生成的定责建议文本
         """
-        if not self.openai_api_key or self.openai_api_key == "your_openai_api_key":
+        if not self.qwen_api_key or self.qwen_api_key == "your_qwen_api_key":
             return self._fallback_suggestion(alerts)
 
         self._init()
