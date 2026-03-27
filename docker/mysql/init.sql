@@ -47,6 +47,19 @@ CREATE TABLE IF NOT EXISTS alerts (
     FOREIGN KEY (task_id) REFERENCES tasks(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 滑雪事故求救记录表 (SOS)
+CREATE TABLE IF NOT EXISTS `sos_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `timestamp` bigint(20) NOT NULL COMMENT '发生时间戳',
+  `latitude` double DEFAULT NULL COMMENT '纬度',
+  `longitude` double DEFAULT NULL COMMENT '经度',
+  `mode` varchar(32) DEFAULT NULL COMMENT '模式(normal/sentinel)',
+  `device` varchar(255) DEFAULT NULL COMMENT '设备UA信息',
+  `status` int(11) DEFAULT '0' COMMENT '状态: 0-未处理, 1-已处理',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='滑雪事故求救记录表';
+
 -- 插入默认管理员用户 (密码: admin123, 实际项目应使用加密密码)
 INSERT INTO users (username, password, role) VALUES ('admin', 'admin123', 'ADMIN')
 ON DUPLICATE KEY UPDATE username = username;

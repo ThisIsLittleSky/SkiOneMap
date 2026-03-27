@@ -24,6 +24,10 @@
           <span class="nav-icon">📚</span>
           <span>知识库管理</span>
         </router-link>
+        <router-link to="/admin/sos" class="nav-item" active-class="active">
+          <span class="nav-icon">🆘</span>
+          <span>事故救援</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">

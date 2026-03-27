@@ -41,6 +41,11 @@ const router = createRouter({
           path: 'rag',
           name: 'AdminRag',
           component: () => import('@/views/admin/RagView.vue')
+        },
+        {
+          path: 'sos',
+          name: 'AdminSos',
+          component: () => import('@/views/admin/SosView.vue')
         }
       ]
     }

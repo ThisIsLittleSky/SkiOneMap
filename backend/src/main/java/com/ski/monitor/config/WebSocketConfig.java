@@ -1,24 +1,18 @@
 package com.ski.monitor.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import com.ski.monitor.websocket.AlertWebSocketHandler;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @Configuration
-@EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+public class WebSocketConfig {
 
-    private final AlertWebSocketHandler alertWebSocketHandler;
-
-    public WebSocketConfig(AlertWebSocketHandler alertWebSocketHandler) {
-        this.alertWebSocketHandler = alertWebSocketHandler;
-    }
-
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(alertWebSocketHandler, "/ws/alerts")
-                .setAllowedOrigins("*");
+    /**
+     * 注入ServerEndpointExporter，
+     * 只有当使用 Spring Boot 且内置 Tomcat 的时候才需要此Bean
+     */
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
     }
 }

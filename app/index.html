@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雪境智判安全伴侣</title>
+    <style>
+        :root {
+            /* 默认：普通安全模式配色 (温和、清新) */
+            --bg-color: #f0f8ff; /* 极光蓝白 */
+            --text-color: #333;
+            --circle-color-1: rgba(100, 181, 246, 0.4); /* 浅蓝 */
+            --circle-color-2: rgba(33, 150, 243, 0.6);  /* 蓝 */
+            --btn-bg: #fff;
+            --btn-active: #e3f2fd;
+            --btn-border: #90caf9;
+            --btn-text: #1976d2;
+            --sos-btn: #ff5252;
+            
+            --transition-speed: 0.8s;
+        }
+
+        [data-theme="sentinel"] {
+            /* 高级哨兵模式配色 (深邃、专业、警惕) */
+            --bg-color: #1a1a2e; /* 深夜蓝 */
+            --text-color: #e0e0e0;
+            --circle-color-1: rgba(255, 152, 0, 0.3);   /* 橙色 */
+            --circle-color-2: rgba(244, 67, 54, 0.5);   /* 红色 */
+            --btn-bg: #16213e;
+            --btn-active: #0f3460;
+            --btn-border: #e94560;
+            --btn-text: #e94560;
+            --sos-btn: #ff1744;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: color var(--transition-speed) ease;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 视图过渡动画规则：采用裁剪圆形扩散效果 */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+        ::view-transition-old(root) {
+            z-index: 1;
+        }
+        ::view-transition-new(root) {
+            z-index: 2;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 动态圆心设计 */
+        .radar-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--circle-color-1);
+            transition: border-color var(--transition-speed) ease;
+            animation: pulse 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .radar-ring:nth-child(1) { width: 100%; height: 100%; animation-delay: 0s; }
+        .radar-ring:nth-child(2) { width: 70%; height: 70%; animation-delay: 0.8s; }
+        .radar-ring:nth-child(3) { width: 40%; height: 40%; animation-delay: 1.6s; }
+
+        .radar-core {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--circle-color-2) 0%, var(--circle-color-1) 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px var(--circle-color-2);
+            transition: all var(--transition-speed) ease;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        /* 危险发生时的摇晃动画 */
+        .shake {
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* 状态文本 */
+        .status-text {
+            margin-top: 40px;
+            font-size: 18px;
+            height: 24px;
+            font-weight: 500;
+            transition: color var(--transition-speed) ease;
+            text-align: center;
+        }
+        .status-detail {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+            text-align: center;
+            height: 16px;
+        }
+        
+        /* 调试信息浮层 */
+        .debug-info {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            font-size: 10px;
+            color: var(--text-color);
+            opacity: 0.6;
+            pointer-events: none;
+            text-align: left;
+            z-index: 20;
+        }
+
+        /* 底部控制区 */
+        .footer {
+            padding: 30px 20px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: rgba(0,0,0,0.05);
+            border-radius: 30px;
+            padding: 4px;
+            position: relative;
+        }
+        [data-theme="sentinel"] .mode-toggle {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 26px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            z-index: 1;
+        }
+
+        .mode-btn.active {
+            color: var(--btn-text);
+        }
+
+        .mode-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: var(--btn-bg);
+            border-radius: 26px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background var(--transition-speed) ease;
+            z-index: 0;
+        }
+        [data-theme="sentinel"] .mode-slider {
+            transform: translateX(100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* 动作面板 (倒计时、手动求救) */
+        .action-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: absolute;
+            bottom: 120px;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--btn-border);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .action-panel.show {
+            display: flex;
+            animation: slideUp 0.3s ease forwards;
+        }
+
+        /* 紧急电话设置面板 */
+        .settings-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+        .settings-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background 0.3s;
+        }
+        .settings-btn:active {
+            transform: scale(0.9);
+        }
+        .phone-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .phone-modal.show {
+            display: flex;
+        }
+        .phone-modal-content {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 320px;
+            text-align: center;
+        }
+        .phone-input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--btn-bg);
+            color: var(--text-color);
+        }
+        .phone-save-btn {
+            padding: 10px 20px;
+            background: var(--btn-text);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .sos-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: var(--sos-btn);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 82, 82, 0.4);
+            transition: transform 0.1s;
+        }
+        .sos-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .cancel-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--text-color);
+            background: transparent;
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .countdown-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--sos-btn);
+        }
+
+        /* 请求权限遮罩 */
+        #permission-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            text-align: center;
+        }
+        #permission-overlay button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 首次权限请求界面 (iOS 需要用户交互才能获取陀螺仪权限) -->
+    <div id="permission-overlay">
+        <h2>安全伴侣需要传感器权限</h2>
+        <p style="margin-top:10px; opacity:0.8;">我们将使用加速度计和GPS来检测您的滑雪状态并在危险时提供帮助。</p>
+        <button id="grant-btn">开启守护</button>
+    </div>
+
+    <div class="header" id="header-title">雪境智判安全伴侣</div>
+
+    <div class="settings-panel">
+        <button class="settings-btn" id="open-phone-modal" aria-label="设置">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 紧急电话设置弹窗 -->
+    <div class="phone-modal" id="phone-modal">
+        <div class="phone-modal-content">
+            <h3>设置紧急联系人</h3>
+            <p style="font-size: 12px; margin-top: 5px; opacity: 0.8;">发生紧急情况时将自动拨打此号码</p>
+            <input type="tel" id="phone-input" class="phone-input" placeholder="请输入手机号" value="110">
+            <button class="phone-save-btn" id="phone-save-btn">保存</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 实时调试信息 -->
+        <div class="debug-info" id="debug-info">
+            Debug Info: Waiting for sensor...
+        </div>
+
+        <div class="radar-container" id="radar-ui">
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-core" id="radar-core">监测中</div>
+        </div>
+
+        <div class="status-text" id="status-text">一切平稳，享受滑雪</div>
+        <div class="status-detail" id="acc-data">a: 0.00 | g: 0.00</div>
+    </div>
+
+    <!-- 弹出的动作面板 (发生摔倒时) -->
+    <div class="action-panel" id="action-panel">
+        <h3 id="alert-title" style="color:var(--sos-btn)">检测到异常碰撞！</h3>
+        <p id="alert-desc">已发送定位至大屏。是否需要拨打紧急电话？</p>
+        <div id="countdown-display" style="display:none;" class="countdown-text">5</div>
+        <button class="sos-btn" id="call-sos-btn">立即拨打求救电话</button>
+        <button class="cancel-btn" id="cancel-btn">我没事，误报</button>
+    </div>
+
+    <div class="footer">
+        <div class="mode-toggle" id="mode-toggle">
+            <div class="mode-slider"></div>
+            <div class="mode-btn active" data-mode="normal">安全模式</div>
+            <div class="mode-btn" data-mode="sentinel">哨兵模式</div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const CONFIG = {
+            BACKEND_URL: 'http://lzzt.cc:8085/api/sos', // 假定接口路径
+            EMERGENCY_PHONE: localStorage.getItem('emergency_phone') || '110', // 预留紧急电话，优先从本地缓存读取
+            FALL_THRESHOLD: 25, // 峰值加速度阈值 (m/s^2)，地球重力为9.8
+            FREEFALL_THRESHOLD: 4, // 失重阈值 (接近0g)
+            STATIONARY_THRESHOLD: 2, // 静止波动阈值
+            STATIONARY_TIME: 2000, // 撞击后需要静止的时间(ms)才判定为跌倒
+            SOS_DELAY_MS: 5000, // 哨兵模式倒计时
+        };
+
+        // 状态
+        let currentMode = 'normal'; // 'normal' | 'sentinel'
+        let isTracking = false;
+        let isFalling = false;
+        let countdownTimer = null;
+        let countdownValue = 5;
+        let currentGeo = { lat: null, lon: null };
+
+        // 算法状态机变量
+        let fallState = 0; // 0: 正常, 1: 检测到失重(可能跌落), 2: 检测到巨大冲击, 3: 处于静止状态(确认跌倒)
+        let stateTime = 0;
+
+        // DOM 元素
+        const body = document.body;
+        const modeToggle = document.getElementById('mode-toggle');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const permissionOverlay = document.getElementById('permission-overlay');
+        const grantBtn = document.getElementById('grant-btn');
+        const statusText = document.getElementById('status-text');
+        const accData = document.getElementById('acc-data');
+        const radarCore = document.getElementById('radar-core');
+        const radarUI = document.getElementById('radar-ui');
+        const debugInfo = document.getElementById('debug-info');
+        
+        const actionPanel = document.getElementById('action-panel');
+        const alertTitle = document.getElementById('alert-title');
+        const alertDesc = document.getElementById('alert-desc');
+        const countdownDisplay = document.getElementById('countdown-display');
+        const callSosBtn = document.getElementById('call-sos-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        // 电话设置相关 DOM
+        const openPhoneModalBtn = document.getElementById('open-phone-modal');
+        const phoneModal = document.getElementById('phone-modal');
+        const phoneInput = document.getElementById('phone-input');
+        const phoneSaveBtn = document.getElementById('phone-save-btn');
+
+        // 初始化电话输入框的值
+        phoneInput.value = CONFIG.EMERGENCY_PHONE;
+
+        // 绑定电话设置交互
+        openPhoneModalBtn.addEventListener('click', () => {
+            phoneModal.classList.add('show');
+        });
+
+        phoneSaveBtn.addEventListener('click', () => {
+            const val = phoneInput.value.trim();
+            if (val) {
+                CONFIG.EMERGENCY_PHONE = val;
+                localStorage.setItem('emergency_phone', val);
+                phoneModal.classList.remove('show');
+                speak('紧急联系人已保存');
+            } else {
+                alert('请输入有效的手机号');
+            }
+        });
+
+        // 音频合成 (语音播报)
+        const synth = window.speechSynthesis;
+        function speak(text) {
+            if(synth.speaking) synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            synth.speak(utterance);
+        }
+
+        // 震动
+        function vibrate(pattern) {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 切换模式逻辑封装
+        function switchMode(newMode) {
+            if(isFalling || currentMode === newMode) return; // 报警中或模式相同不允许切换
+            
+            // 检查浏览器是否支持 View Transitions API
+            if (!document.startViewTransition) {
+                applyModeChange(newMode);
+                return;
+            }
+
+            // 获取点击的扩散起点
+            let x, y;
+            if (newMode === 'sentinel') {
+                // 向哨兵模式切换，从右下角开始扩散
+                x = window.innerWidth;
+                y = window.innerHeight;
+            } else {
+                // 向安全模式切换，从左下角开始扩散
+                x = 0;
+                y = window.innerHeight;
+            }
+
+            // 计算最大扩散半径 (对角线长度)
+            const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+            const transition = document.startViewTransition(() => {
+                applyModeChange(newMode);
+            });
+
+            transition.ready.then(() => {
+                const clipPath = [
+                    `circle(0px at ${x}px ${y}px)`,
+                    `circle(${endRadius}px at ${x}px ${y}px)`
+                ];
+                
+                document.documentElement.animate(
+                    {
+                        clipPath: clipPath
+                    },
+                    {
+                        duration: 500, // 将动画时间缩短到 500ms
+                        easing: 'ease-out', // 改为 ease-out 让扩散开始得更干脆
+                        pseudoElement: '::view-transition-new(root)'
+                    }
+                );
+            });
+        }
+
+        // 实际的DOM更新逻辑
+        function applyModeChange(newMode) {
+            currentMode = newMode;
+            
+            modeBtns.forEach(b => {
+                if(b.dataset.mode === newMode) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+            
+            if(currentMode === 'sentinel') {
+                body.setAttribute('data-theme', 'sentinel');
+                statusText.textContent = '哨兵已就绪，严密监控中';
+                speak('高级哨兵模式已开启');
+                vibrate([100, 50, 100]);
+            } else {
+                body.removeAttribute('data-theme');
+                statusText.textContent = '一切平稳，享受滑雪';
+                speak('普通安全模式');
+                vibrate([100]);
+            }
+        }
+
+        // 模式切换 - 点击交互
+        modeToggle.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mode-btn');
+            if(btn) {
+                switchMode(btn.dataset.mode);
+            }
+        });
+
+        // 模式切换 - 滑动交互
+        let startX = 0;
+        let isSwiping = false;
+
+        modeToggle.addEventListener('touchstart', (e) => {
+            if (isFalling) return;
+            startX = e.touches[0].clientX;
+            isSwiping = true;
+        }, { passive: true });
+
+        modeToggle.addEventListener('touchmove', (e) => {
+            if (!isSwiping || isFalling) return;
+            const currentX = e.touches[0].clientX;
+            const diffX = currentX - startX;
+
+            // 滑动阈值设为 30px
+            if (Math.abs(diffX) > 30) {
+                if (diffX > 0 && currentMode === 'normal') {
+                    // 向右滑：切换到哨兵模式
+                    switchMode('sentinel');
+                    isSwiping = false; // 触发一次后停止检测
+                } else if (diffX < 0 && currentMode === 'sentinel') {
+                    // 向左滑：切换到安全模式
+                    switchMode('normal');
+                    isSwiping = false;
+                }
+            }
+        }, { passive: true });
+
+        modeToggle.addEventListener('touchend', () => {
+            isSwiping = false;
+        });
+
+        // 权限请求 (iOS 13+ 需要用户交互才能开启DeviceMotion)
+        grantBtn.addEventListener('click', async () => {
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                try {
+                    const permission = await DeviceMotionEvent.requestPermission();
+                    if (permission === 'granted') {
+                        startTracking();
+                    } else {
+                        alert('需要传感器权限才能检测跌倒！');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    startTracking(); // 降级处理
+                }
+            } else {
+                startTracking(); // 非 iOS 13+ 或安卓直接开启
+            }
+        });
+
+        // 获取地理位置
+        function updateLocation() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        currentGeo.lat = position.coords.latitude;
+                        currentGeo.lon = position.coords.longitude;
+                    },
+                    (error) => console.log("GPS获取失败", error),
+                    { enableHighAccuracy: true, maximumAge: 10000 }
+                );
+            }
+        }
+
+        // 启动传感器监控
+        function startTracking() {
+            permissionOverlay.style.display = 'none';
+            isTracking = true;
+            updateLocation();
+            speak('雪境智判伴侣已启动，祝您滑雪愉快');
+            
+            // 检查浏览器是否支持 devicemotion
+            if (window.DeviceMotionEvent) {
+                // 部分旧安卓系统或特殊浏览器更认同 ondevicemotion
+                window.ondevicemotion = handleMotion;
+                window.addEventListener('devicemotion', handleMotion, true);
+                
+                // 作为备选：尝试监听 deviceorientation (陀螺仪方向) 作为补充感知
+                window.addEventListener('deviceorientation', handleOrientation, true);
+                
+                debugInfo.innerHTML = "Sensor: DeviceMotion listener added.<br>Waiting for data...";
+                
+                // 设置一个超时检测，如果3秒内没收到数据，说明被限制或硬件不支持
+                setTimeout(() => {
+                    if (lastAcc === 9.8 && lastReportTime === 0 && lastAlpha === 0) {
+                        debugInfo.innerHTML = "Error: Event added but no data received.<br>Check phone browser permissions or try Chrome app.";
+                    }
+                }, 3000);
+            } else {
+                debugInfo.innerHTML = "Error: DeviceMotionEvent NOT supported by this browser.";
+                alert("当前浏览器不支持加速度传感器！");
+            }
+        }
+
+        let lastAlpha = 0; // 记录偏航角作为陀螺仪备用检测
+        function handleOrientation(event) {
+            if(!isTracking || isFalling) return;
+            if(event.alpha !== null) {
+                lastAlpha = event.alpha;
+                // 如果能接收到方向数据但没有加速度数据，我们在调试信息里显示出来
+                if (lastAcc === 9.8) {
+                    debugInfo.innerHTML = `Warning: No Acceleration, but got Orientation!<br>Alpha: ${event.alpha.toFixed(1)}<br>Beta: ${event.beta.toFixed(1)}<br>Gamma: ${event.gamma.toFixed(1)}`;
+                }
+            }
+        }
+
+        // 处理加速度数据
+        let lastReportTime = 0;
+        let lastAcc = 9.8; // 缓存上一帧的加速度大小，用于计算静止状态
+        function handleMotion(event) {
+            if(!isTracking || isFalling) return;
+
+            let acc = event.accelerationIncludingGravity;
+            
+            // 如果 accelerationIncludingGravity 没有数据，尝试降级使用 acceleration (不带重力)
+            if (!acc || (acc.x === null && acc.y === null && acc.z === null)) {
+                acc = event.acceleration;
+                if (!acc || (acc.x === null && acc.y === null && acc.z === null)) {
+                    debugInfo.innerHTML = "Event triggered, but all acceleration data is null.<br>Permission denied or hardware issue.";
+                    return;
+                }
+            }
+
+            // 计算合加速度
+            const ax = acc.x || 0;
+            const ay = acc.y || 0;
+            const az = acc.z || 0;
+            const totalAcc = Math.sqrt(ax*ax + ay*ay + az*az);
+            
+            // 简单防抖展示
+            const now = Date.now();
+            if(now - lastReportTime > 200) {
+                accData.textContent = `加速度: ${totalAcc.toFixed(2)} m/s²`;
+                debugInfo.innerHTML = `Raw X: ${ax.toFixed(2)}<br>Raw Y: ${ay.toFixed(2)}<br>Raw Z: ${az.toFixed(2)}<br>State: ${fallState}`;
+                lastReportTime = now;
+            }
+
+            // 碰撞/跌倒检测逻辑：失重 -> 剧烈撞击 -> 静止
+            
+            // 状态机流转
+            if (fallState === 0) {
+                // 1. 判断失重 (自由落体阶段)
+                if (totalAcc < CONFIG.FREEFALL_THRESHOLD) {
+                    fallState = 1;
+                    stateTime = now; // 记录发生失重的时间
+                } else if (totalAcc > CONFIG.FALL_THRESHOLD) {
+                    // 也有可能是直接发生的剧烈撞击(没有明显的失重过程)
+                    fallState = 2;
+                    stateTime = now;
+                }
+            } else if (fallState === 1) {
+                // 失重后，如果超过 1.5 秒还没发生撞击，可能只是轻微的抛出或误报，重置状态
+                if (now - stateTime > 1500) {
+                    fallState = 0;
+                } else if (totalAcc > CONFIG.FALL_THRESHOLD) {
+                    // 2. 在失重后发生了剧烈撞击
+                    fallState = 2;
+                    stateTime = now;
+                }
+            } else if (fallState === 2) {
+                // 撞击后，观察是否处于静止状态 (可能躺在地上了)
+                // 如果用户继续滑动或者站起来，合加速度的波动会比较大
+                const diff = Math.abs(totalAcc - lastAcc);
+                
+                if (diff > CONFIG.STATIONARY_THRESHOLD) {
+                    // 还有较大动作，说明没有晕倒/重伤躺平，重置计时或取消报警
+                    // 可以在这里设计更复杂的容错，目前简单处理为重置
+                    if (now - stateTime > 3000) {
+                        fallState = 0; // 3秒内持续有动作，判定为没摔倒或已起身
+                    }
+                } else {
+                    // 处于静止/微动状态
+                    if (now - stateTime > CONFIG.STATIONARY_TIME) {
+                        // 满足 剧烈撞击后 静止持续 2 秒 -> 触发报警
+                        fallState = 3;
+                        triggerFallAlert();
+                    }
+                }
+            }
+            
+            lastAcc = totalAcc;
+        }
+
+        // 触发跌倒报警
+        function triggerFallAlert() {
+            isFalling = true;
+            radarUI.classList.add('shake');
+            radarCore.textContent = '危险!';
+            radarCore.style.background = 'red';
+            statusText.textContent = '检测到严重碰撞！';
+            statusText.style.color = 'red';
+            
+            // 1. 毫秒级预警：强烈震动 + 语音
+            vibrate([500, 200, 500, 200, 1000]);
+            speak('警告！检测到严重碰撞！');
+
+            // 2. 发送求救信息到大屏
+            sendSOSToBackend();
+
+            // 3. 展现UI逻辑
+            actionPanel.classList.add('show');
+
+            if(currentMode === 'sentinel') {
+                alertDesc.textContent = '哨兵模式：即将在 5 秒后自动拨打求救电话！';
+                countdownDisplay.style.display = 'block';
+                countdownValue = 5;
+                countdownDisplay.textContent = countdownValue;
+                
+                countdownTimer = setInterval(() => {
+                    countdownValue--;
+                    countdownDisplay.textContent = countdownValue;
+                    speak(countdownValue.toString());
+                    
+                    if(countdownValue <= 0) {
+                        clearInterval(countdownTimer);
+                        makeEmergencyCall();
+                        resetUI();
+                    }
+                }, 1000);
+            } else {
+                alertDesc.textContent = '已发送定位至大屏。是否需要拨打紧急电话？';
+                countdownDisplay.style.display = 'none';
+            }
+        }
+
+        // 向后端发送求救请求
+        async function sendSOSToBackend() {
+            const payload = {
+                timestamp: Date.now(),
+                latitude: currentGeo.lat,
+                longitude: currentGeo.lon,
+                mode: currentMode,
+                device: navigator.userAgent
+            };
+            
+            console.log("发送求救信号:", payload);
+            
+            try {
+                // 使用 fetch 发送 POST 请求。注意可能会有跨域(CORS)问题，需要后端配置允许。
+                const response = await fetch(CONFIG.BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(response.ok) {
+                    console.log("大屏已接收求救信号");
+                }
+            } catch (error) {
+                console.error("发送求救请求失败，可能是网络或跨域问题:", error);
+                // 即使请求失败，本地逻辑(拨打电话)仍继续
+            }
+        }
+
+        // 拨打紧急电话
+        function makeEmergencyCall() {
+            speak('正在拨打求救电话');
+            window.location.href = `tel:${CONFIG.EMERGENCY_PHONE}`;
+        }
+
+        // 手动取消
+        cancelBtn.addEventListener('click', () => {
+            if(countdownTimer) clearInterval(countdownTimer);
+            speak('已取消报警，恢复监测');
+            resetUI();
+        });
+
+        // 手动拨打
+        callSosBtn.addEventListener('click', () => {
+            if(countdownTimer) clearInterval(countdownTimer);
+            makeEmergencyCall();
+            resetUI();
+        });
+
+        // 恢复初始状态
+        function resetUI() {
+            isFalling = false;
+            radarUI.classList.remove('shake');
+            radarCore.textContent = '监测中';
+            radarCore.style.background = ''; // 恢复CSS变量
+            statusText.textContent = currentMode === 'sentinel' ? '哨兵已就绪，严密监控中' : '一切平稳，享受滑雪';
+            statusText.style.color = '';
+            actionPanel.classList.remove('show');
+            vibrate(0); // 停止震动
+        }
+
+    </script>
+</body>
+</html>
