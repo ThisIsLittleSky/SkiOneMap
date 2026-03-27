@@ -1,6 +1,8 @@
 package com.ski.monitor.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ski.monitor.entity.Task;
 import com.ski.monitor.entity.Video;
 import com.ski.monitor.repository.TaskRepository;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -21,6 +24,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final VideoRepository videoRepository;
     private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String TASK_QUEUE_KEY = "video:tasks";
 
@@ -98,5 +102,41 @@ public class TaskService {
 
     public List<Task> listAll() {
         return taskRepository.selectList(null);
+    }
+
+    public Optional<String> getAnnotatedVideoPath(Long taskId) {
+        Task task = taskRepository.selectById(taskId);
+        if (task == null || task.getResult() == null || task.getResult().isBlank()) {
+            return Optional.empty();
+        }
+        return extractAnnotatedVideoPath(task.getResult());
+    }
+
+    public Optional<String> getLatestAnnotatedVideoPathByVideoId(Long videoId) {
+        List<Task> tasks = getByVideoId(videoId);
+        for (Task task : tasks) {
+            if (!"COMPLETED".equals(task.getStatus()) || task.getResult() == null || task.getResult().isBlank()) {
+                continue;
+            }
+            Optional<String> path = extractAnnotatedVideoPath(task.getResult());
+            if (path.isPresent()) {
+                return path;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> extractAnnotatedVideoPath(String result) {
+        try {
+            JsonNode root = objectMapper.readTree(result);
+            if (!root.has("annotatedVideoPath")) {
+                return Optional.empty();
+            }
+            String path = root.get("annotatedVideoPath").asText("");
+            return path == null || path.isBlank() ? Optional.empty() : Optional.of(path);
+        } catch (Exception e) {
+            log.warn("Failed to parse annotated video path from task result", e);
+            return Optional.empty();
+        }
     }
 }

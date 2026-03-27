@@ -6,6 +6,7 @@ from app.services.yolo_processor import YOLOProcessor
 from app.services.behavior_detector import detect_all
 from app.services.rag_engine import RAGEngine
 from app.services.result_callback import ResultCallback
+from app.services.video_annotator import VideoAnnotator
 
 import logging
 
@@ -25,6 +26,7 @@ class TaskConsumer:
         self.processor = YOLOProcessor()
         self.rag_engine = RAGEngine()
         self.callback = ResultCallback()
+        self.annotator = VideoAnnotator()
 
     def start(self):
         self.running = True
@@ -75,8 +77,19 @@ class TaskConsumer:
                     alerts, tracks
                 )
 
-            # 4. 回调结果
-            self.callback.send_result(task_id, tracks, alerts, liability_suggestion)
+            # 4. 生成标注视频
+            annotated_video_path = self.annotator.annotate_video(
+                video_path, task_id, tracks, alerts
+            )
+
+            # 5. 回调结果
+            self.callback.send_result(
+                task_id,
+                tracks,
+                alerts,
+                liability_suggestion,
+                annotated_video_path=annotated_video_path,
+            )
             logger.info("Task %d completed: %d tracks, %d alerts", task_id, len(tracks), len(alerts))
 
         except Exception as e:

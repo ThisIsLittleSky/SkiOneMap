@@ -14,7 +14,6 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,12 +57,14 @@ class TaskServiceTest {
     @Test
     void createTask_dispatchesToRedisAndSaves() {
         Video video = makeVideo(1L, "/data/videos/test.mp4");
-        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
+        when(videoRepository.selectById(1L)).thenReturn(video);
 
-        Task saved = makeTask(10L, 1L, "PENDING");
-        when(taskRepository.save(any(Task.class))).thenReturn(saved);
+        doAnswer(inv -> {
+            Task task = inv.getArgument(0);
+            task.setId(10L);
+            return 1;
+        }).when(taskRepository).insert(any(Task.class));
         when(redisTemplate.opsForList()).thenReturn(listOperations);
-        when(videoRepository.save(any(Video.class))).thenReturn(video);
 
         Task result = taskService.createTask(1L);
 
@@ -76,13 +77,13 @@ class TaskServiceTest {
 
         // video status should be updated to PROCESSING
         ArgumentCaptor<Video> videoCaptor = ArgumentCaptor.forClass(Video.class);
-        verify(videoRepository).save(videoCaptor.capture());
+        verify(videoRepository).updateById(videoCaptor.capture());
         assertThat(videoCaptor.getValue().getStatus()).isEqualTo("PROCESSING");
     }
 
     @Test
     void createTask_throwsWhenVideoNotFound() {
-        when(videoRepository.findById(99L)).thenReturn(Optional.empty());
+        when(videoRepository.selectById(99L)).thenReturn(null);
 
         assertThatThrownBy(() -> taskService.createTask(99L))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -92,8 +93,8 @@ class TaskServiceTest {
     @Test
     void updateStatus_changesTaskStatus() {
         Task task = makeTask(1L, 1L, "PENDING");
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(taskRepository.selectById(1L)).thenReturn(task);
+        when(taskRepository.updateById(any(Task.class))).thenReturn(1);
 
         Task result = taskService.updateStatus(1L, "PROCESSING");
 
@@ -102,7 +103,7 @@ class TaskServiceTest {
 
     @Test
     void updateStatus_returnsNull_whenTaskNotFound() {
-        when(taskRepository.findById(99L)).thenReturn(Optional.empty());
+        when(taskRepository.selectById(99L)).thenReturn(null);
 
         Task result = taskService.updateStatus(99L, "PROCESSING");
 
@@ -114,10 +115,10 @@ class TaskServiceTest {
         Task task = makeTask(1L, 1L, "PROCESSING");
         Video video = makeVideo(1L, "/data/videos/test.mp4");
 
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
-        when(videoRepository.save(any(Video.class))).thenReturn(video);
+        when(taskRepository.selectById(1L)).thenReturn(task);
+        when(taskRepository.updateById(any(Task.class))).thenReturn(1);
+        when(videoRepository.selectById(1L)).thenReturn(video);
+        when(videoRepository.updateById(any(Video.class))).thenReturn(1);
 
         Task result = taskService.updateResult(1L, "{\"summary\":\"ok\"}", "COMPLETED");
 
@@ -125,7 +126,7 @@ class TaskServiceTest {
         assertThat(result.getResult()).isEqualTo("{\"summary\":\"ok\"}");
 
         ArgumentCaptor<Video> videoCaptor = ArgumentCaptor.forClass(Video.class);
-        verify(videoRepository).save(videoCaptor.capture());
+        verify(videoRepository).updateById(videoCaptor.capture());
         assertThat(videoCaptor.getValue().getStatus()).isEqualTo("ANALYZED");
     }
 
@@ -134,24 +135,46 @@ class TaskServiceTest {
         Task task = makeTask(1L, 1L, "PROCESSING");
         Video video = makeVideo(1L, "/data/videos/test.mp4");
 
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
-        when(videoRepository.save(any(Video.class))).thenReturn(video);
+        when(taskRepository.selectById(1L)).thenReturn(task);
+        when(taskRepository.updateById(any(Task.class))).thenReturn(1);
+        when(videoRepository.selectById(1L)).thenReturn(video);
+        when(videoRepository.updateById(any(Video.class))).thenReturn(1);
 
         taskService.updateResult(1L, "{}", "FAILED");
 
         ArgumentCaptor<Video> videoCaptor = ArgumentCaptor.forClass(Video.class);
-        verify(videoRepository).save(videoCaptor.capture());
+        verify(videoRepository).updateById(videoCaptor.capture());
         assertThat(videoCaptor.getValue().getStatus()).isEqualTo("FAILED");
     }
 
     @Test
     void listAll_returnsAllTasks() {
-        when(taskRepository.findAll()).thenReturn(List.of(makeTask(1L, 1L, "PENDING"), makeTask(2L, 2L, "COMPLETED")));
+        when(taskRepository.selectList(null)).thenReturn(List.of(makeTask(1L, 1L, "PENDING"), makeTask(2L, 2L, "COMPLETED")));
 
         List<Task> result = taskService.listAll();
 
         assertThat(result).hasSize(2);
+    }
+
+    @Test
+    void getAnnotatedVideoPath_returnsParsedPath() {
+        Task task = makeTask(1L, 1L, "COMPLETED");
+        task.setResult("{\"annotatedVideoPath\":\"/data/videos/annotated/task1.mp4\"}");
+        when(taskRepository.selectById(1L)).thenReturn(task);
+
+        assertThat(taskService.getAnnotatedVideoPath(1L))
+                .contains("/data/videos/annotated/task1.mp4");
+    }
+
+    @Test
+    void getLatestAnnotatedVideoPathByVideoId_returnsNewestAvailablePath() {
+        Task latest = makeTask(3L, 1L, "COMPLETED");
+        latest.setResult("{\"annotatedVideoPath\":\"\"}");
+        Task older = makeTask(2L, 1L, "COMPLETED");
+        older.setResult("{\"annotatedVideoPath\":\"/data/videos/annotated/task2.mp4\"}");
+        when(taskRepository.selectList(any())).thenReturn(List.of(latest, older));
+
+        assertThat(taskService.getLatestAnnotatedVideoPathByVideoId(1L))
+                .contains("/data/videos/annotated/task2.mp4");
     }
 }

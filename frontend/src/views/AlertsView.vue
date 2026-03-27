@@ -91,11 +91,16 @@
         <div v-if="taskDetail" class="task-detail">
           <div class="detail-header">
             <span>任务 {{ taskDetail.taskId }} 分析结果</span>
-            <button class="btn-close" @click="taskDetail = null">×</button>
+            <button class="btn-close" @click="closeTaskDetail">×</button>
           </div>
           <div class="detail-body">
             <p>轨迹数量：{{ taskDetail.trackCount }}</p>
             <p>预警数量：{{ taskDetail.alerts.length }}</p>
+            <div v-if="taskDetail.annotatedVideoAvailable" class="annotated-video">
+              <strong>标注视频：</strong>
+              <button class="btn-detail" @click="taskPlayerSrc = taskDetail.annotatedVideoUrl">播放标注视频</button>
+              <video v-if="taskPlayerSrc" class="detail-video" controls :src="taskPlayerSrc"></video>
+            </div>
             <div v-if="taskDetail.liabilitySuggestion" class="liability">
               <strong>定责建议：</strong>
               <pre>{{ taskDetail.liabilitySuggestion }}</pre>
@@ -127,6 +132,7 @@ const tab = ref<'alerts' | 'tasks'>('alerts')
 const tasks = ref<Array<{ id: number; videoId: number; status: string; createdAt: string }>>([])
 const tasksLoading = ref(false)
 const taskDetail = ref<TrackSummary | null>(null)
+const taskPlayerSrc = ref('')
 let tasksPollTimer: number | null = null
 
 async function loadTasks() {
@@ -160,9 +166,15 @@ async function showTaskDetail(taskId: number) {
   try {
     const res = await getTaskTracks(taskId)
     taskDetail.value = res.data
+    taskPlayerSrc.value = ''
   } catch (err) {
     console.error('Failed to load task detail:', err)
   }
+}
+
+function closeTaskDetail() {
+  taskDetail.value = null
+  taskPlayerSrc.value = ''
 }
 
 function taskStatusText(status: string): string {
@@ -417,6 +429,15 @@ tr:hover td { background: rgba(21,101,192,0.06); }
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.annotated-video { display: flex; flex-direction: column; gap: 8px; }
+
+.detail-video {
+  width: 100%;
+  max-height: 420px;
+  background: #000;
+  border-radius: 6px;
 }
 
 .detail-alerts ul {

@@ -27,7 +27,8 @@ class ResultCallback:
         task_id: int,
         tracks: List[Dict[str, Any]],
         alerts: List[Dict[str, Any]] = None,
-        liability_suggestion: str = ""
+        liability_suggestion: str = "",
+        annotated_video_path: str = "",
     ):
         if alerts is None:
             alerts = []
@@ -45,6 +46,8 @@ class ResultCallback:
             "alerts": alerts,
             "alertCount": len(alerts),
             "liabilitySuggestion": liability_suggestion,
+            "annotatedVideoPath": annotated_video_path,
+            "annotatedVideoAvailable": bool(annotated_video_path),
         }
         self.redis_client.rpush(self.result_queue, json.dumps(result))
         logger.info(

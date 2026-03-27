@@ -129,6 +129,8 @@ export interface TrackSummary {
   trackCount: number
   totalFrames: number
   liabilitySuggestion: string
+  annotatedVideoAvailable: boolean
+  annotatedVideoUrl: string
   alerts: Array<{
     id: number
     taskId: number

@@ -14,6 +14,8 @@ export interface Alert {
   alertCount?: number
   rawStatus?: string
   liabilitySuggestion?: string
+  annotatedVideoAvailable?: boolean
+  annotatedVideoUrl?: string
   subAlerts?: Array<{ alertType: string; description: string }>
 }
 

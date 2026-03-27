@@ -58,6 +58,8 @@ class RedisSubscriberServiceTest {
                   "alertCount": 2,
                   "totalFrames": 300,
                   "liabilitySuggestion": "测试建议",
+                  "annotatedVideoPath": "/data/videos/annotated/task5.mp4",
+                  "annotatedVideoAvailable": true,
                   "alerts": [
                     {"alertType":"WRONG_WAY","severity":"WARNING","description":"逆行","positionX":10.0,"positionY":20.0},
                     {"alertType":"COLLISION_RISK","severity":"DANGER","description":"碰撞","positionX":50.0,"positionY":60.0}
@@ -75,7 +77,7 @@ class RedisSubscriberServiceTest {
 
         // two alerts saved
         ArgumentCaptor<Alert> alertCaptor = ArgumentCaptor.forClass(Alert.class);
-        verify(alertRepository, times(2)).save(alertCaptor.capture());
+        verify(alertRepository, times(2)).insert(alertCaptor.capture());
         assertThat(alertCaptor.getAllValues().get(0).getAlertType()).isEqualTo("WRONG_WAY");
         assertThat(alertCaptor.getAllValues().get(1).getAlertType()).isEqualTo("COLLISION_RISK");
         assertThat(alertCaptor.getAllValues().get(1).getSeverity()).isEqualTo("DANGER");

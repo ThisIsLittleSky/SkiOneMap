@@ -29,6 +29,6 @@ server:
 
 app:
   video:
-    storage-path: ${VIDEO_STORAGE_PATH:./data/videos}
+    storage-path: ${VIDEO_STORAGE_PATH:../ai-engine/data/originals}
   ai-engine:
     base-url: ${AI_ENGINE_URL:http://localhost:8001}

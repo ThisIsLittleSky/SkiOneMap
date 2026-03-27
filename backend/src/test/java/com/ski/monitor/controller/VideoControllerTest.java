@@ -1,6 +1,8 @@
 package com.ski.monitor.controller;
 
 import com.ski.monitor.entity.Video;
+import com.ski.monitor.service.AuthService;
+import com.ski.monitor.service.TaskService;
 import com.ski.monitor.service.VideoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +30,12 @@ class VideoControllerTest {
 
     @MockBean
     private VideoService videoService;
+
+    @MockBean
+    private TaskService taskService;
+
+    @MockBean
+    private AuthService authService;
 
     private Video makeVideo(Long id, String filename, String status) {
         Video v = new Video();
@@ -95,5 +104,14 @@ class VideoControllerTest {
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[1].status").value("ANALYZED"));
+    }
+
+    @Test
+    void annotatedStream_returns404_whenNoAnnotatedVideo() throws Exception {
+        when(videoService.getById(1L)).thenReturn(makeVideo(1L, "test.mp4", "ANALYZED"));
+        when(taskService.getLatestAnnotatedVideoPathByVideoId(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/video/1/annotated/stream"))
+                .andExpect(status().isNotFound());
     }
 }

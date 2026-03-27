@@ -1,6 +1,7 @@
 package com.ski.monitor.controller;
 
 import com.ski.monitor.entity.Video;
+import com.ski.monitor.service.TaskService;
 import com.ski.monitor.service.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.io.FileSystemResource;
@@ -18,15 +19,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/video")
 public class VideoController {
 
     private final VideoService videoService;
+    private final TaskService taskService;
 
-    public VideoController(VideoService videoService) {
+    public VideoController(VideoService videoService, TaskService taskService) {
         this.videoService = videoService;
+        this.taskService = taskService;
     }
 
     @PostMapping("/upload")
@@ -72,11 +76,29 @@ public class VideoController {
             return ResponseEntity.notFound().build();
         }
 
-        Path filePath = Paths.get(video.getFilepath());
+        return buildStreamResponse(Paths.get(video.getFilepath()), request);
+    }
+
+    @GetMapping("/{id}/annotated/stream")
+    public ResponseEntity<Resource> streamAnnotatedVideo(
+            @PathVariable Long id,
+            HttpServletRequest request) throws IOException {
+        Video video = videoService.getById(id);
+        if (video == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<String> path = taskService.getLatestAnnotatedVideoPathByVideoId(id);
+        if (path.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return buildStreamResponse(Paths.get(path.get()), request);
+    }
+
+    private ResponseEntity<Resource> buildStreamResponse(Path filePath, HttpServletRequest request) throws IOException {
         if (!Files.exists(filePath)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
         Resource resource = new FileSystemResource(filePath);
         long fileSize = Files.size(filePath);
         String rangeHeader = request.getHeader(HttpHeaders.RANGE);

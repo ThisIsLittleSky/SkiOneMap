@@ -15,8 +15,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -48,14 +46,18 @@ class VideoServiceTest {
         saved.setId(1L);
         saved.setFilename("test.mp4");
         saved.setStatus("UPLOADED");
-        when(videoRepository.save(any(Video.class))).thenReturn(saved);
+        doAnswer(invocation -> {
+            Video video = invocation.getArgument(0);
+            video.setId(1L);
+            return 1;
+        }).when(videoRepository).insert(any(Video.class));
 
         Video result = videoService.uploadVideo(file, 1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getStatus()).isEqualTo("UPLOADED");
-        verify(videoRepository, times(1)).save(any(Video.class));
+        verify(videoRepository, times(1)).insert(any(Video.class));
     }
 
     @Test
@@ -68,7 +70,11 @@ class VideoServiceTest {
         saved.setId(2L);
         saved.setFilename("videofile");
         saved.setStatus("UPLOADED");
-        when(videoRepository.save(any(Video.class))).thenReturn(saved);
+        doAnswer(invocation -> {
+            Video video = invocation.getArgument(0);
+            video.setId(2L);
+            return 1;
+        }).when(videoRepository).insert(any(Video.class));
 
         Video result = videoService.uploadVideo(file, 1L);
         assertThat(result).isNotNull();
@@ -78,7 +84,7 @@ class VideoServiceTest {
     void getById_returnsVideo_whenExists() {
         Video video = new Video();
         video.setId(1L);
-        when(videoRepository.findById(1L)).thenReturn(Optional.of(video));
+        when(videoRepository.selectById(1L)).thenReturn(video);
 
         Video result = videoService.getById(1L);
 
@@ -88,7 +94,7 @@ class VideoServiceTest {
 
     @Test
     void getById_returnsNull_whenNotExists() {
-        when(videoRepository.findById(99L)).thenReturn(Optional.empty());
+        when(videoRepository.selectById(99L)).thenReturn(null);
 
         Video result = videoService.getById(99L);
 
@@ -99,7 +105,7 @@ class VideoServiceTest {
     void listAll_returnsAllVideos() {
         Video v1 = new Video(); v1.setId(1L);
         Video v2 = new Video(); v2.setId(2L);
-        when(videoRepository.findAll()).thenReturn(List.of(v1, v2));
+        when(videoRepository.selectList(null)).thenReturn(List.of(v1, v2));
 
         List<Video> result = videoService.listAll();
 

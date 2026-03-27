@@ -52,6 +52,8 @@ onMounted(() => {
         alertCount: data.alertCount,
         rawStatus: data.status,
         liabilitySuggestion: data.liabilitySuggestion || '',
+        annotatedVideoAvailable: !!data.annotatedVideoAvailable,
+        annotatedVideoUrl: data.annotatedVideoUrl || '',
         subAlerts: Array.isArray(data.alerts) ? data.alerts : []
       })
     },
@@ -93,6 +95,8 @@ async function loadHistoryTasks() {
           alertCount: d.alerts?.length || 0,
           rawStatus: 'COMPLETED',
           liabilitySuggestion: d.liabilitySuggestion || '',
+          annotatedVideoAvailable: !!d.annotatedVideoAvailable,
+          annotatedVideoUrl: d.annotatedVideoUrl || '',
           subAlerts: d.alerts || [],
         }
       })

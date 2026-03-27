@@ -1,9 +1,11 @@
 package com.ski.monitor.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ski.monitor.entity.Alert;
 import com.ski.monitor.entity.Task;
 import com.ski.monitor.repository.AlertRepository;
+import com.ski.monitor.service.AuthService;
 import com.ski.monitor.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ class TaskControllerTest {
 
     @MockBean
     private AlertRepository alertRepository;
+
+    @MockBean
+    private AuthService authService;
 
     private Task makeTask(Long id, Long videoId, String status, String result) {
         Task t = new Task();
@@ -110,19 +115,21 @@ class TaskControllerTest {
 
     @Test
     void getTracks_returnsTracksAndAlerts_whenCompleted() throws Exception {
-        String resultJson = "{\"trackCount\":2,\"totalFrames\":100,\"liabilitySuggestion\":\"测试建议\"}";
+        String resultJson = "{\"trackCount\":2,\"totalFrames\":100,\"liabilitySuggestion\":\"测试建议\",\"annotatedVideoAvailable\":true}";
         when(taskService.getById(1L)).thenReturn(makeTask(1L, 1L, "COMPLETED", resultJson));
 
         Alert a = new Alert();
         a.setId(1L); a.setTaskId(1L);
         a.setAlertType("WRONG_WAY"); a.setSeverity("WARNING");
         a.setDescription("逆行"); a.setPositionX(10f); a.setPositionY(20f);
-        when(alertRepository.findByTaskIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(a));
+        when(alertRepository.selectList(org.mockito.ArgumentMatchers.<QueryWrapper<Alert>>any())).thenReturn(List.of(a));
 
         mockMvc.perform(get("/api/task/1/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.trackCount").value(2))
                 .andExpect(jsonPath("$.liabilitySuggestion").value("测试建议"))
+                .andExpect(jsonPath("$.annotatedVideoAvailable").value(true))
+                .andExpect(jsonPath("$.annotatedVideoUrl").value("/api/task/1/annotated/stream"))
                 .andExpect(jsonPath("$.alerts.length()").value(1))
                 .andExpect(jsonPath("$.alerts[0].alertType").value("WRONG_WAY"));
     }

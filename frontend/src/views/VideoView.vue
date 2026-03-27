@@ -47,7 +47,14 @@
               </td>
               <td>{{ formatDate(video.createdAt) }}</td>
               <td class="actions-cell">
-                <button class="btn-play" @click="openPlayer(video.id, video.filename)">播放</button>
+                <button class="btn-play" @click="openPlayer(video.id, video.filename)">原视频</button>
+                <button
+                  v-if="video.status === 'ANALYZED'"
+                  class="btn-play annotated"
+                  @click="openPlayer(video.id, `${video.filename} · 标注版`, true)"
+                >
+                  标注视频
+                </button>
                 <button
                   class="btn-analyze"
                   @click="startAnalysis(video.id)"
@@ -101,10 +108,10 @@ const playerSrc = ref('')
 const playerFilename = ref('')
 const videoEl = ref<HTMLVideoElement>()
 
-function openPlayer(id: number, filename: string) {
+function openPlayer(id: number, filename: string, annotated = false) {
   selectedVideoId.value = id
   playerFilename.value = filename
-  playerSrc.value = `/api/video/${id}/stream`
+  playerSrc.value = annotated ? `/api/video/${id}/annotated/stream` : `/api/video/${id}/stream`
   playerVisible.value = true
 }
 
@@ -336,6 +343,7 @@ tr.selected td { background: rgba(21, 101, 192, 0.15); }
   border-radius: 4px;
   cursor: pointer;
 }
+.btn-play.annotated { background: rgba(46,125,50,0.16); color: #a5d6a7; border-color: #2e7d32; }
 
 .btn-analyze {
   padding: 4px 12px;

@@ -43,10 +43,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: root123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      VIDEO_STORAGE_PATH: /data/videos
+      VIDEO_STORAGE_PATH: /shared-data/originals
       AI_ENGINE_URL: http://ai-engine:8001
     volumes:
-      - video_data:/data/videos
+      - ./ai-engine/data:/shared-data
     depends_on:
       mysql:
         condition: service_healthy
@@ -63,11 +63,12 @@ services:
       REDIS_PORT: 6379
       YOLO_MODEL_PATH: /models/yolo11n.pt
       CHROMA_DB_PATH: /data/chroma
+      ANNOTATED_VIDEO_PATH: /shared-data/annotated
       OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key}
     volumes:
       - ai_models:/models
       - chroma_data:/data/chroma
-      - video_data:/data/videos:ro
+      - ./ai-engine/data:/shared-data
     depends_on:
       redis:
         condition: service_healthy
@@ -83,6 +84,5 @@ services:
 volumes:
   mysql_data:
   redis_data:
-  video_data:
   ai_models:
   chroma_data:

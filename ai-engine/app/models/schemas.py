@@ -23,4 +23,6 @@ class TaskResult(BaseModel):
     tracks: Optional[List[TrackData]] = None
     trackCount: int = 0
     totalFrames: int = 0
+    annotatedVideoPath: str = ""
+    annotatedVideoAvailable: bool = False
     error: Optional[str] = None

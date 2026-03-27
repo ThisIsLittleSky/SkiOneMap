@@ -99,6 +99,10 @@ public class RedisSubscriberService {
             node.put("totalFrames", root.has("totalFrames") ? root.get("totalFrames").asInt() : 0);
             node.put("liabilitySuggestion",
                     root.has("liabilitySuggestion") ? root.get("liabilitySuggestion").asText() : "");
+            node.put("annotatedVideoPath",
+                    root.has("annotatedVideoPath") ? root.get("annotatedVideoPath").asText() : "");
+            node.put("annotatedVideoAvailable",
+                    root.has("annotatedVideoAvailable") && root.get("annotatedVideoAvailable").asBoolean(false));
             if (root.has("alerts")) {
                 node.set("alerts", root.get("alerts"));
             }
@@ -118,6 +122,11 @@ public class RedisSubscriberService {
             node.put("totalFrames", root.has("totalFrames") ? root.get("totalFrames").asInt() : 0);
             node.put("liabilitySuggestion",
                     root.has("liabilitySuggestion") ? root.get("liabilitySuggestion").asText() : "");
+            node.put("annotatedVideoAvailable",
+                    root.has("annotatedVideoAvailable") && root.get("annotatedVideoAvailable").asBoolean(false));
+            if (root.has("annotatedVideoAvailable") && root.get("annotatedVideoAvailable").asBoolean(false)) {
+                node.put("annotatedVideoUrl", String.format("/api/task/%d/annotated/stream", taskId));
+            }
             if (root.has("alerts")) {
                 node.set("alerts", root.get("alerts"));
             }
