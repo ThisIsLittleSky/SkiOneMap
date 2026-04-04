@@ -62,20 +62,112 @@ export function uploadKnowledgeFile(file: File, onProgress?: (p: number) => void
   )
 }
 
+export interface RagStatus {
+  initialized: boolean
+  chunks: number
+  documents: number
+  indexSizeMB: number
+  lastUpload: string | null
+  queryCount: number
+  useEmbedding: boolean
+  llmModel: string
+  embeddingModel: string | null
+}
+
+export interface DocumentInfo {
+  filename: string
+  size: number
+  uploadTime: string
+}
+
+export interface LiabilityParty {
+  name: string
+  percentage: number
+  reason: string
+}
+
+export interface LiabilityReference {
+  title: string
+  content: string
+}
+
+export interface LiabilityResult {
+  liability: {
+    parties: LiabilityParty[]
+    resort_liability: string
+  }
+  behavior_analysis: string
+  references: LiabilityReference[]
+  suggestion: string
+}
+
+export interface QueryTestResult {
+  query: string
+  answer: LiabilityResult
+  elapsed: number
+}
+
+export interface QueryHistory {
+  query: string
+  timestamp: string
+  elapsed: number
+  success: boolean
+  error?: string
+}
+
+export interface RagStats {
+  totalQueries: number
+  avgElapsed: number
+  maxElapsed: number
+  minElapsed: number
+  successRate: number
+}
+
 export function getRagStatus() {
-  return aiClient.get<{ initialized: boolean; chunks: number; documents: number }>(
-    '/rag/status'
-  )
+  return aiClient.get<RagStatus>('/rag/status')
 }
 
 export function rebuildRagIndex() {
   return aiClient.post<{ status: string; chunks: number }>('/rag/rebuild')
 }
 
+export function listDocuments() {
+  return aiClient.get<{ documents: DocumentInfo[] }>('/rag/documents')
+}
+
+export function deleteDocument(filename: string) {
+  return aiClient.delete(`/rag/documents/${encodeURIComponent(filename)}`)
+}
+
+export function previewDocument(filename: string) {
+  return aiClient.get<{ filename: string; preview: string }>(`/rag/documents/${encodeURIComponent(filename)}/preview`)
+}
+
+export function testQuery(query: string) {
+  return aiClient.post<QueryTestResult>('/rag/test', { query })
+}
+
+export function getQueryHistory(limit = 10) {
+  return aiClient.get<{ history: QueryHistory[] }>('/rag/history', { params: { limit } })
+}
+
+export function getRagStats() {
+  return aiClient.get<RagStats>('/rag/stats')
+}
+
+export function clearKnowledge() {
+  return aiClient.delete<{ status: string; message: string }>('/rag/clear')
+}
+
+export function setEmbeddingMode(enabled: boolean) {
+  return aiClient.post<{ status: string; enabled: boolean; message: string }>('/rag/embedding-mode', { enabled })
+}
+
 
 export interface VideoInfo {
   id: number
   userId: number
+  cameraId?: number
   filename: string
   filepath: string
   duration: number | null
@@ -109,6 +201,10 @@ export function getVideo(id: number) {
 
 export function listVideos() {
   return apiClient.get<VideoInfo[]>('/video/list')
+}
+
+export function searchVideos(cameraId?: number) {
+  return apiClient.get<VideoInfo[]>('/video/search', { params: { cameraId } })
 }
 
 export function createTask(videoId: number) {

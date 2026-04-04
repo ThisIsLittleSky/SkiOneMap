@@ -35,7 +35,7 @@
             </div>
             <div v-if="alert.liabilitySuggestion" class="liability">
               <strong>定责建议：</strong>
-              <pre>{{ alert.liabilitySuggestion }}</pre>
+              <LiabilitySuggestionDisplay :text="alert.liabilitySuggestion" />
             </div>
           </div>
           <div class="alert-card-footer">
@@ -88,7 +88,7 @@
           </div>
           <div v-if="taskDetail.liabilitySuggestion" class="liability">
             <strong>定责建议：</strong>
-            <pre>{{ taskDetail.liabilitySuggestion }}</pre>
+            <LiabilitySuggestionDisplay :text="taskDetail.liabilitySuggestion" />
           </div>
           <div v-if="taskDetail.alerts.length > 0" class="detail-alerts">
             <strong>预警明细：</strong>
@@ -105,6 +105,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAlertStore } from '@/stores/alertStore'
+import LiabilitySuggestionDisplay from '@/components/LiabilitySuggestionDisplay.vue'
 import { listTasks, getTaskTracks, type TrackSummary } from '@/api'
 
 const alertStore = useAlertStore()

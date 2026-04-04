@@ -23,6 +23,7 @@ export const useAlertStore = defineStore('alert', () => {
   const alerts = ref<Alert[]>([])
   const wsConnected = ref(false)
   const initialized = ref(false)
+  const taskCompletedSignal = ref(0)
 
   function addAlert(alert: Alert) {
     // 如果已有相同 taskId，替换（WebSocket 更新覆盖历史拉取）
@@ -34,6 +35,10 @@ export const useAlertStore = defineStore('alert', () => {
     }
     // 保持最多 50 条
     if (alerts.value.length > 50) alerts.value.splice(50)
+    // COMPLETED 状态时触发刷新信号
+    if (alert.rawStatus === 'COMPLETED' || (alert as any).status === 'COMPLETED') {
+      taskCompletedSignal.value++
+    }
   }
 
   function setHistoryAlerts(list: Alert[]) {
@@ -49,5 +54,5 @@ export const useAlertStore = defineStore('alert', () => {
     alerts.value = []
   }
 
-  return { alerts, wsConnected, initialized, addAlert, setHistoryAlerts, clearAlerts }
+  return { alerts, wsConnected, initialized, taskCompletedSignal, addAlert, setHistoryAlerts, clearAlerts }
 })

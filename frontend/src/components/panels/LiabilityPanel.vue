@@ -52,18 +52,29 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAlertStore } from '@/stores/alertStore'
+import type { LiabilityResult } from '@/api'
 
 const alertStore = useAlertStore()
 
 const PARTY_COLORS = ['#00e5ff', '#ff6b35', '#7c4dff', '#ff9800', '#4caf50']
 
-function parseLiability(text: string) {
+function parseLiabilityJson(text: string): LiabilityResult | null {
+  if (!text) return null
+  try {
+    const parsed = JSON.parse(text)
+    if (parsed && parsed.liability) return parsed as LiabilityResult
+  } catch {
+    // not JSON
+  }
+  return null
+}
+
+function parseLiabilityLegacy(text: string) {
   const parties: { name: string; pct: number; color: string }[] = []
   const legalRefs: string[] = []
 
   if (!text) return { parties, legalRefs }
 
-  // 匹配 "XX方：30%" 或 "甲方承担70%"
   const pctRegex = /([^，,。\s：:]{1,8})[方责任][\s：:]*(\d+)%/g
   let m: RegExpExecArray | null
   let colorIdx = 0
@@ -71,13 +82,11 @@ function parseLiability(text: string) {
     parties.push({ name: m[1], pct: parseInt(m[2]), color: PARTY_COLORS[colorIdx++ % PARTY_COLORS.length] })
   }
 
-  // 匹配法律条文：《xxx》第x条 或 第xx条第x款
   const lawRegex = /《[^》]{1,30}》[^，,。]*?第[\d一二三四五六七八九十百]+条(?:第[\d一二三四五六七八九十百]+款)?/g
   while ((m = lawRegex.exec(text)) !== null) {
     if (legalRefs.length < 3) legalRefs.push(m[0].slice(0, 20))
   }
 
-  // 也匹配简单的 第xx条
   if (legalRefs.length === 0) {
     const simpleRegex = /第[\d一二三四五六七八九十百]{1,4}条(?:第[\d一二三四五六七八九十百]+款)?/g
     while ((m = simpleRegex.exec(text)) !== null) {
@@ -105,14 +114,34 @@ const items = computed<LiabilityItem[]>(() => {
     .slice(0, 5)
     .map(a => {
       const text = a.liabilitySuggestion || ''
-      const { parties, legalRefs } = parseLiability(text)
       const statusMap: Record<string, string> = {
         COMPLETED: '已定责', PROCESSING: '分析中', FAILED: '失败', PENDING: '待处理'
       }
+
+      let parties: { name: string; pct: number; color: string }[] = []
+      let legalRefs: string[] = []
+      let summary = ''
+
+      const structured = parseLiabilityJson(text)
+      if (structured) {
+        parties = structured.liability.parties.map((p, i) => ({
+          name: p.name,
+          pct: p.percentage,
+          color: PARTY_COLORS[i % PARTY_COLORS.length]
+        }))
+        legalRefs = structured.references.map(r => r.title).slice(0, 3)
+        summary = structured.behavior_analysis.slice(0, 56) + (structured.behavior_analysis.length > 56 ? '...' : '')
+      } else {
+        const parsed = parseLiabilityLegacy(text)
+        parties = parsed.parties
+        legalRefs = parsed.legalRefs
+        summary = text.slice(0, 56) + (text.length > 56 ? '...' : '')
+      }
+
       return {
         taskId: a.taskId,
         time: a.createdAt,
-        summary: text.slice(0, 56) + (text.length > 56 ? '...' : ''),
+        summary,
         status: (a.rawStatus || 'info').toLowerCase(),
         statusText: statusMap[a.rawStatus || ''] || '处理中',
         parties,

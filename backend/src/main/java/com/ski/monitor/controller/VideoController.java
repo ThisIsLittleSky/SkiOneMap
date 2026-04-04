@@ -33,22 +33,6 @@ public class VideoController {
         this.taskService = taskService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
-        try {
-            // MVP: use default userId = 1
-            Video video = videoService.uploadVideo(file, 1L);
-            return ResponseEntity.ok(Map.of(
-                    "id", video.getId(),
-                    "filename", video.getFilename(),
-                    "status", video.getStatus()
-            ));
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to upload video: " + e.getMessage()));
-        }
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getVideo(@PathVariable Long id) {
         Video video = videoService.getById(id);
@@ -60,6 +44,14 @@ public class VideoController {
 
     @GetMapping("/list")
     public ResponseEntity<List<Video>> listAll() {
+        return ResponseEntity.ok(videoService.listAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Video>> searchByCameraId(@RequestParam(required = false) Long cameraId) {
+        if (cameraId != null) {
+            return ResponseEntity.ok(videoService.searchByCameraId(cameraId));
+        }
         return ResponseEntity.ok(videoService.listAll());
     }
 

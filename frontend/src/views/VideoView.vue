@@ -60,7 +60,7 @@
                   @click="startAnalysis(video.id)"
                   :disabled="video.status === 'PROCESSING'"
                 >
-                  {{ video.status === 'PROCESSING' ? '分析中...' : '开始分析' }}
+                  {{ getAnalyzeButtonText(video.status) }}
                 </button>
               </td>
             </tr>
@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { uploadVideo, listVideos, createTask, type VideoInfo } from '@/api'
 import { useAlertStore } from '@/stores/alertStore'
@@ -107,6 +107,7 @@ const playerVisible = ref(false)
 const playerSrc = ref('')
 const playerFilename = ref('')
 const videoEl = ref<HTMLVideoElement>()
+const pollingTimer = ref<number | null>(null)
 
 function openPlayer(id: number, filename: string, annotated = false) {
   selectedVideoId.value = id
@@ -173,9 +174,35 @@ async function startAnalysis(videoId: number) {
     uploadMessage.value = `分析任务已创建！任务ID: ${res.data.taskId}`
     uploadError.value = false
     await loadVideos()
+    startPolling()
   } catch (err: any) {
     uploadMessage.value = `创建任务失败: ${err.response?.data?.error || err.message}`
     uploadError.value = true
+  }
+}
+
+function getAnalyzeButtonText(status: string): string {
+  if (status === 'PROCESSING') return '分析中...'
+  if (status === 'ANALYZED') return '重新分析'
+  return '开始分析'
+}
+
+function startPolling() {
+  if (pollingTimer.value) return
+  pollingTimer.value = window.setInterval(() => {
+    const hasProcessing = videos.value.some(v => v.status === 'PROCESSING')
+    if (hasProcessing) {
+      loadVideos()
+    } else {
+      stopPolling()
+    }
+  }, 3000)
+}
+
+function stopPolling() {
+  if (pollingTimer.value) {
+    clearInterval(pollingTimer.value)
+    pollingTimer.value = null
   }
 }
 
@@ -193,7 +220,14 @@ function formatDate(dateStr: string): string {
 
 onMounted(() => {
   loadVideos()
-  watch(() => alertStore.alerts.length, () => loadVideos())
+  watch(() => alertStore.taskCompletedSignal, () => {
+    loadVideos()
+    stopPolling()
+  })
+})
+
+onUnmounted(() => {
+  stopPolling()
 })
 </script>
 

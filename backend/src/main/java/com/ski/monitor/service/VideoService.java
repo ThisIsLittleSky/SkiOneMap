@@ -25,7 +25,7 @@ public class VideoService {
         this.videoRepository = videoRepository;
     }
 
-    public Video uploadVideo(MultipartFile file, Long userId) throws IOException {
+    public Video uploadVideo(MultipartFile file, Long userId, Long cameraId) throws IOException {
         Path dir = Paths.get(storagePath).toAbsolutePath();
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
@@ -41,6 +41,7 @@ public class VideoService {
 
         Video video = new Video();
         video.setUserId(userId);
+        video.setCameraId(cameraId);
         video.setFilename(originalFilename);
         video.setFilepath(filePath.toString());
         video.setStatus("UPLOADED");
@@ -54,5 +55,12 @@ public class VideoService {
 
     public List<Video> listAll() {
         return videoRepository.selectList(null);
+    }
+
+    public List<Video> searchByCameraId(Long cameraId) {
+        return videoRepository.selectList(
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Video>()
+                .eq("camera_id", cameraId)
+        );
     }
 }

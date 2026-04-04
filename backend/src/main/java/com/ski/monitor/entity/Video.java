@@ -14,6 +14,9 @@ public class Video {
     @TableField("user_id")
     private Long userId;
 
+    @TableField("camera_id")
+    private Long cameraId;
+
     private String filename;
 
     private String filepath;

@@ -84,6 +84,46 @@
 
 ---
 
+## ⚙️ 环境变量配置（必须提前设置）
+
+在启动项目前，需要配置以下环境变量。**设置后必须重新打开终端才能生效。**
+
+### Windows CMD（管理员权限）
+
+```cmd
+setx QWEN_API_KEY "your_qwen_api_key_here"
+setx QWEN_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
+setx QWEN_LLM_MODEL "qwen3-max-2026-01-23"
+setx QWEN_EMBEDDING_MODEL "text-embedding-v4"
+setx USE_EMBEDDING "true"
+```
+
+### Windows PowerShell（管理员权限）
+
+```powershell
+[Environment]::SetEnvironmentVariable("QWEN_API_KEY", "your_qwen_api_key_here", "User")
+[Environment]::SetEnvironmentVariable("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1", "User")
+[Environment]::SetEnvironmentVariable("QWEN_LLM_MODEL", "qwen3-max-2026-01-23", "User")
+[Environment]::SetEnvironmentVariable("QWEN_EMBEDDING_MODEL", "text-embedding-v4", "User")
+[Environment]::SetEnvironmentVariable("USE_EMBEDDING", "true", "User")
+```
+
+### Linux / macOS
+
+将以下内容添加到 `~/.bashrc` 或 `~/.zshrc`：
+
+```bash
+export QWEN_API_KEY=your_qwen_api_key_here
+export QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+export QWEN_LLM_MODEL=qwen3-max-2026-01-23
+export QWEN_EMBEDDING_MODEL=text-embedding-v4
+export USE_EMBEDDING=true
+```
+
+然后执行 `source ~/.bashrc` 或 `source ~/.zshrc` 使其生效。
+
+---
+
 ## 🚀 快速启动（Docker Compose）
 
 **前置条件：** Docker ≥ 20.x、Docker Compose ≥ 2.x
@@ -93,18 +133,7 @@
 git clone https://github.com/ThisIsLittleSky/ski-one-map.git
 cd ski-one-map
 
-# 2. 配置阿里千问 API Key（用于 RAG 定责）
-# Linux / macOS（永久写入 ~/.bashrc 或 ~/.zshrc）：
-export QWEN_API_KEY=your_key_here
-# export QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-# export QWEN_LLM_MODEL=qwen3-max-2026-01-23
-# export QWEN_EMBEDDING_MODEL=qwen3-vl-embedding
-
-# Windows CMD（永久用户级，需重新打开终端生效）：
-# setx QWEN_API_KEY "your_key_here"
-
-# Windows PowerShell（永久用户级，需重新打开终端生效）：
-# [Environment]::SetEnvironmentVariable("QWEN_API_KEY","your_key_here","User")
+# 2. 配置环境变量（参考上方"环境变量配置"章节）
 
 # 3. 一键启动全栈服务
 docker-compose up -d
@@ -161,18 +190,8 @@ conda env remove -n ski-ai
 conda env create -f environment.yml
 conda activate ski-ai
 pip install -i https://pypi.org/simple --no-cache-dir -r requirements.txt
-# 设置永久环境变量（CMD，需以管理员身份运行，设置后重新打开终端生效）
-setx QWEN_API_KEY "your_key_here"
-setx QWEN_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
-setx QWEN_LLM_MODEL "qwen3-max-2026-01-23"
-setx QWEN_EMBEDDING_MODEL "qwen3-vl-embedding"
-# PowerShell 永久设置（用户级别）：
-# [Environment]::SetEnvironmentVariable("QWEN_API_KEY","your_key_here","User")
-# [Environment]::SetEnvironmentVariable("QWEN_BASE_URL","https://dashscope.aliyuncs.com/compatible-mode/v1","User")
-# [Environment]::SetEnvironmentVariable("QWEN_LLM_MODEL","qwen3-max-2026-01-23","User")
-# [Environment]::SetEnvironmentVariable("QWEN_EMBEDDING_MODEL","qwen3-vl-embedding","User")
 
-# 设置完成后重新打开终端，再启动服务
+# 确保已按照"环境变量配置"章节设置环境变量，并重新打开终端
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 

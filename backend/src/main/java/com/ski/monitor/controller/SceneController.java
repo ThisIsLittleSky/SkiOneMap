@@ -87,7 +87,7 @@ public class SceneController {
         Camera camera = cameraRepository.selectById(id);
         if (camera == null) return ResponseEntity.notFound().build();
         try {
-            var video = videoService.uploadVideo(file, 1L);
+            var video = videoService.uploadVideo(file, 1L, id);
             var task = taskService.createTask(video.getId());
             return ResponseEntity.ok(Map.of(
                     "videoId", video.getId(),

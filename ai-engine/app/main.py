@@ -1,10 +1,15 @@
+import os
 import logging
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.api.task_api import router as task_router
 from app.api.health import router as health_router
 from app.api.rag_api import router as rag_router
 from app.services.task_consumer import TaskConsumer
+
+# 加载 .env 环境变量
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 logging.basicConfig(
     level=logging.INFO,

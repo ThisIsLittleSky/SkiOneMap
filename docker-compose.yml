@@ -65,6 +65,11 @@ services:
       CHROMA_DB_PATH: /data/chroma
       ANNOTATED_VIDEO_PATH: /shared-data/annotated
       OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key}
+      QWEN_API_KEY: ${QWEN_API_KEY:-your_qwen_api_key}
+      QWEN_BASE_URL: ${QWEN_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      QWEN_LLM_MODEL: ${QWEN_LLM_MODEL:-qwen3-max-2026-01-23}
+      QWEN_EMBEDDING_MODEL: ${QWEN_EMBEDDING_MODEL:-tongyi-embedding-vision-plus-2026-03-06}
+      USE_EMBEDDING: ${USE_EMBEDDING:-true}
     volumes:
       - ai_models:/models
       - chroma_data:/data/chroma
