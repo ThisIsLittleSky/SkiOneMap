@@ -291,7 +291,7 @@ ski/
 ### 智慧大屏总览
 
 <p align="center">
-  <img src="assets/智慧大屏.png" width="800" alt="智慧大屏总览" />
+  <img src="assets/smart-screen-overview.png" width="800" alt="智慧大屏总览" />
 </p>
 
 > 基于 Three.js 的雪场 3D 数字孪生大屏，集成事故定责面板、预警统计、摄像头状态、雪道安全指数等 6 大实时数据面板，并接入国家气象局实时天气。
@@ -302,11 +302,11 @@ ski/
 
 | 摄像头管理 | 事故视频管理 |
 |:---:|:---:|
-| ![摄像头管理](assets/摄像头管理.png) | ![事故视频管理](assets/事故视频管理.png) |
+| ![摄像头管理](assets/camera-management.png) | ![事故视频管理](assets/incident-video-management.png) |
 
 | 往期案例与雪联规则知识库 | 后台预警量化留痕 |
 |:---:|:---:|
-| ![往期案例与雪联规则知识库](assets/往期案例与雪联规则知识库.png) | ![后台预警量化留痕](assets/后台预警量化留痕.png) |
+| ![往期案例与雪联规则知识库](assets/cases-and-fis-knowledge-base.png) | ![后台预警量化留痕](assets/alert-audit-trail.png) |
 
 ---
 
@@ -316,7 +316,7 @@ ski/
   <img src="assets/readme-ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
 </p>
 <p align="center">
-  <img src="assets/sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
+  <img src="assets/ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
 </p>
 
 
@@ -328,7 +328,7 @@ ski/
 
 | 知识库管理总览 | 测试查询与结果展示 |
 |:---:|:---:|
-| ![AI助手小雪-知识库管理](assets/知识库总览.png) | ![AI助手小雪-测试查询](assets/测试查询.png) |
+| ![AI助手小雪-知识库管理](assets/knowledge-base-overview.png) | ![AI助手小雪-测试查询](assets/test-query-results.png) |
 
 > 展示 AI 助手小雪的知识库运维、查询测试、责任占比可视化、参考文献引用与处理建议输出能力，突出优化后的 RAG 工作流。
 
@@ -338,7 +338,7 @@ ski/
 
 | 天眼追踪主界面 | 按颜色搜索候选目标 |
 |:---:|:---:|
-| ![天眼追踪主界面](assets/天眼追踪主界面.png) | ![天眼追踪-按颜色搜索](assets/天眼查询.png) |
+| ![天眼追踪主界面](assets/tracking-main-view.png) | ![天眼追踪-按颜色搜索](assets/tracking-color-search.png) |
 
 
 > 展示从源视频选人、颜色搜索、摄像头选择到追踪结果返回的完整流程，体现天眼追踪的跨摄像头检索与智能研判能力。
