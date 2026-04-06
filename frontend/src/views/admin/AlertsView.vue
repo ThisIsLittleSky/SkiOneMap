@@ -68,7 +68,10 @@
               </span>
             </td>
             <td>{{ formatDate(task.createdAt) }}</td>
-            <td><button class="btn-detail" @click="showTaskDetail(task.id)">查看结果</button></td>
+            <td>
+              <button class="btn-detail" @click="showTaskDetail(task.id)">查看结果</button>
+              <button class="btn-track" @click="goToTracking(task.videoId)">追踪</button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -104,9 +107,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAlertStore } from '@/stores/alertStore'
 import LiabilitySuggestionDisplay from '@/components/LiabilitySuggestionDisplay.vue'
 import { listTasks, getTaskTracks, type TrackSummary } from '@/api'
+
+const router = useRouter()
 
 const alertStore = useAlertStore()
 const tab = ref<'alerts' | 'tasks'>('alerts')
@@ -142,6 +148,10 @@ function taskStatusText(s: string) {
 
 function formatDate(d: string) {
   if (!d) return ''; try { return new Date(d).toLocaleString('zh-CN') } catch { return d }
+}
+
+function goToTracking(videoId: number) {
+  router.push({ path: '/admin/tracking', query: { videoId } })
 }
 </script>
 
@@ -187,7 +197,8 @@ tr:hover td { background: rgba(21,101,192,0.06); }
 .status-completed { background: rgba(46,125,50,0.2); color: #81c784; }
 .status-failed { background: rgba(198,40,40,0.2); color: #ef9a9a; }
 
-.btn-detail { padding: 4px 10px; font-size: 12px; background: transparent; color: #64b5f6; border: 1px solid #1565c0; border-radius: 4px; cursor: pointer; }
+.btn-detail, .btn-track { padding: 4px 10px; font-size: 12px; background: transparent; color: #64b5f6; border: 1px solid #1565c0; border-radius: 4px; cursor: pointer; margin-right: 6px; }
+.btn-track { color: #81c784; border-color: #2e7d32; }
 
 .task-detail { margin-top: 20px; border: 1px solid #1e3a5f; border-radius: 8px; background: #0d1f33; overflow: hidden; }
 .detail-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #1e3a5f; font-size: 14px; color: #90caf9; }

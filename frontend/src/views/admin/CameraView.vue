@@ -157,12 +157,9 @@
             <div class="progress-bar" v-if="uploading">
               <div class="progress-fill" :style="{ width: uploadPct + '%' }"></div>
             </div>
-            <div v-if="analyzing" class="analyzing-hint">
-              <span class="analyzing-dot"></span> AI 分析中，请稍候...
-            </div>
             <div v-if="uploadMsg2" class="message" :class="uploadErr2 ? 'error' : 'success'">{{ uploadMsg2 }}</div>
-            <button class="btn-primary" @click="handleUpload" :disabled="!uploadFile || uploading || analyzing">
-              {{ uploading ? `上传中 ${uploadPct}%` : analyzing ? '分析中...' : '上传并开始分析' }}
+            <button class="btn-primary" @click="handleUpload" :disabled="!uploadFile || uploading">
+              {{ uploading ? `上传中 ${uploadPct}%` : '上传视频' }}
             </button>
           </div>
         </div>
@@ -276,57 +273,25 @@ function handleFileChange(e: Event) {
 }
 
 function closeUploadModal() {
-  if (uploading.value || analyzing.value) return
+  if (uploading.value) return
   uploadTarget.value = null
 }
-
-const analyzing = ref(false)
 
 async function handleUpload() {
   if (!uploadFile.value || !uploadTarget.value) return
   uploading.value = true; uploadPct.value = 0; uploadMsg2.value = ''
-  let taskId: number | null = null
   try {
-    const r = await uploadCameraVideo(uploadTarget.value.id, uploadFile.value, p => { uploadPct.value = p })
-    taskId = r.data.taskId
+    await uploadCameraVideo(uploadTarget.value.id, uploadFile.value, p => { uploadPct.value = p })
+    uploadMsg2.value = '上传成功！请前往视频管理页面进行分析'
     uploadErr2.value = false
     uploadFile.value = null
     if (fileInput.value) fileInput.value.value = ''
   } catch (err: any) {
     uploadMsg2.value = `上传失败: ${err.response?.data?.error || err.message}`
     uploadErr2.value = true
+  } finally {
     uploading.value = false
-    return
   }
-  uploading.value = false
-
-  // 轮询任务状态
-  analyzing.value = true
-  uploadMsg2.value = `上传成功，正在分析（任务 #${taskId}）...`
-  const DONE_STATES = ['DONE', 'COMPLETED', 'FAILED', 'ERROR']
-  const poll = async () => {
-    try {
-      const s = await getTaskStatus(taskId!)
-      const status = s.data.status
-      if (DONE_STATES.includes(status)) {
-        analyzing.value = false
-        if (status === 'FAILED' || status === 'ERROR') {
-          uploadMsg2.value = `分析失败（任务 #${taskId}）`
-          uploadErr2.value = true
-        } else {
-          uploadMsg2.value = `分析完成（任务 #${taskId}）`
-          uploadErr2.value = false
-        }
-      } else {
-        setTimeout(poll, 3000)
-      }
-    } catch {
-      analyzing.value = false
-      uploadMsg2.value = `查询分析状态失败（任务 #${taskId}）`
-      uploadErr2.value = true
-    }
-  }
-  poll()
 }
 
 onMounted(() => { loadConfig(); loadCameras() })

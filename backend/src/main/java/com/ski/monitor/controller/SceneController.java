@@ -81,20 +81,18 @@ public class SceneController {
     }
 
     @PostMapping("/cameras/{id}/upload")
-    public ResponseEntity<?> uploadAndAnalyze(
+    public ResponseEntity<?> uploadVideo(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file) {
         Camera camera = cameraRepository.selectById(id);
         if (camera == null) return ResponseEntity.notFound().build();
         try {
             var video = videoService.uploadVideo(file, 1L, id);
-            var task = taskService.createTask(video.getId());
             return ResponseEntity.ok(Map.of(
                     "videoId", video.getId(),
-                    "taskId", task.getId(),
                     "cameraId", id,
                     "cameraName", camera.getName(),
-                    "status", task.getStatus()
+                    "filename", video.getFilename()
             ));
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));

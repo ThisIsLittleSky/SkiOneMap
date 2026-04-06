@@ -96,7 +96,7 @@ class RAGEngine:
         )
         from llama_index.core.embeddings import BaseEmbedding
         from llama_index.vector_stores.chroma import ChromaVectorStore
-        from llama_index.llms.openai import OpenAI as LlamaOpenAI
+        from llama_index.llms.openai_like import OpenAILike
         import dashscope
         import chromadb
 
@@ -104,11 +104,12 @@ class RAGEngine:
         if not os.path.isdir(knowledge_dir) or not os.listdir(knowledge_dir):
             raise FileNotFoundError(f"Knowledge directory empty or missing: {knowledge_dir}")
 
-        Settings.llm = LlamaOpenAI(
+        Settings.llm = OpenAILike(
             model=self.llm_model,
             api_key=self.qwen_api_key,
             api_base=self.qwen_base_url,
             temperature=0.2,
+            is_chat_model=True,
         )
 
         embed_model = self.embedding_model
@@ -185,6 +186,21 @@ class RAGEngine:
     {"title": "法规/条文标题", "content": "相关条文摘要"}
   ],
   "suggestion": "处理措施建议"
+}"""
+
+    CHAT_FRIENDLY_OUTPUT_INSTRUCTION = """请严格按照以下JSON格式输出，不要输出任何其他内容：
+{
+  "liability": {
+    "parties": [
+      {"name": "当事人名称", "percentage": 责任百分比数字, "reason": "责任原因"}
+    ],
+    "resort_liability": "雪场管理方连带责任说明，无则填'无'"
+  },
+  "behavior_analysis": "如果是滑雪安全/法律问题，这里给出分析；如果是普通聊天，这里直接给出自然、正常的回答",
+  "references": [
+    {"title": "法规/条文标题或参考来源标题", "content": "相关条文摘要；普通聊天无参考时可为空数组"}
+  ],
+  "suggestion": "如果是咨询类问题给出建议；如果是普通聊天可给出后续交流建议或留空"
 }"""
 
     def generate_liability_suggestion(
@@ -304,7 +320,7 @@ class RAGEngine:
         response = client.chat.completions.create(
             model=self.llm_model,
             messages=[
-                {"role": "system", "content": "你是一个专业的滑雪场安全管理专家，正在分析一段视频中的实际事故。请根据法律法规和安全规范进行事故定责分析，严格以JSON格式输出。"},
+                {"role": "system", "content": "你是雪境智判旗下的AI助手小雪₍ᐢ..ᐢ₎♡。你擅长滑雪场安全、事故责任与法律规范分析。当前你正在分析一段视频中的实际事故，请根据法律法规和安全规范进行事故定责分析，严格以JSON格式输出。"},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2,
@@ -326,7 +342,7 @@ class RAGEngine:
         response = client.chat.completions.create(
             model=self.llm_model,
             messages=[
-                {"role": "system", "content": "你是一个专业的滑雪场安全管理专家，正在回答一个关于滑雪安全的法律咨询问题。请根据知识库内容和法律法规进行分析，严格以JSON格式输出。"},
+                {"role": "system", "content": "你是雪境智判旗下的AI助手小雪₍ᐢ..ᐢ₎♡。你既可以回答滑雪安全、事故责任与法律规范问题，也可以进行自然聊天。请根据知识库内容和用户意图进行回答，严格以JSON格式输出。"},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2,
@@ -401,9 +417,13 @@ class RAGEngine:
 【用户咨询问题】
 {question}
 
-请根据知识库内容回答上述问题，给出定责分析参考。
+你需要先判断用户输入属于哪一类：
+1. 如果是滑雪安全、事故责任、雪场规则、法律咨询、案例分析等专业问题，请优先结合知识库内容回答，并给出分析与建议。
+2. 如果是普通聊天、寒暄、开放式观点问题，例如“你好”“你认为AI会代替法律判决吗？”，请像助手一样自然回答，不要强行做定责分析，也不要假装有事故责任。
 
-{self.STRUCTURED_OUTPUT_INSTRUCTION}"""
+无论哪种情况，都必须输出 JSON。
+
+{self.CHAT_FRIENDLY_OUTPUT_INSTRUCTION}"""
 
     def _build_query_prompt(self, question: str) -> str:
         """查询测试路径：向量检索查询 prompt"""
@@ -412,7 +432,13 @@ class RAGEngine:
 【用户咨询问题】
 {question}
 
-{self.STRUCTURED_OUTPUT_INSTRUCTION}"""
+你需要先判断用户输入属于哪一类：
+1. 如果是滑雪安全、事故责任、雪场规则、法律咨询、案例分析等专业问题，请根据检索到的知识进行分析回答。
+2. 如果是普通聊天、寒暄、开放式观点问题，例如“你好”“你认为AI会代替法律判决吗？”，请直接进行自然对话，不要强行输出责任划分。
+
+若问题不涉及责任划分，`liability.parties` 返回空数组，`resort_liability` 返回“无”，重点在 `behavior_analysis` 中给出正常回答。
+
+{self.CHAT_FRIENDLY_OUTPUT_INSTRUCTION}"""
 
     def _fallback_suggestion(self, alerts: List[Dict[str, Any]]) -> str:
         """无 LLM 时基于规则的简单定责建议，返回结构化 JSON 字符串"""

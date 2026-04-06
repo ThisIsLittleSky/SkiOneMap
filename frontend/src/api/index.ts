@@ -40,6 +40,52 @@ export function logout() {
   return apiClient.post('/auth/logout')
 }
 
+// 天眼追踪接口
+export function getVideoPersons(videoId: number) {
+  return apiClient.get(`/tracking/persons/${videoId}`)
+}
+
+export function createTrackingTask(data: { videoId: number; targetTrackId: number; cameraIds: number[] }) {
+  return apiClient.post('/tracking/tasks', data)
+}
+
+export function getTrackingResult(taskId: number) {
+  return apiClient.get(`/tracking/tasks/${taskId}`)
+}
+
+export function getCameraList() {
+  return apiClient.get('/tracking/cameras')
+}
+
+export interface ColorSearchMatch {
+  person_id: number
+  video_id: number
+  camera_id: number
+  track_id: number
+  cropped_image_path: string
+  clip_path: string | null
+  color_ratio: number
+  dominant_color: string | null
+  first_frame: number
+  last_frame: number
+  frame_count: number
+}
+
+export interface ColorSearchResult {
+  status: string
+  target_color: string
+  matches: ColorSearchMatch[]
+  count: number
+}
+
+export function searchByColor(data: { target_color: string; camera_ids: number[]; min_color_ratio?: number }) {
+  return aiClient.post<ColorSearchResult>('/tracking/search-by-color', data)
+}
+
+export function getVideoUrl(videoId: number): string {
+  return `/api/video/${videoId}/stream`
+}
+
 
 // RAG 知识库接口（直接调 AI 引擎，走 /ai 代理）
 const aiClient = axios.create({

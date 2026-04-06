@@ -46,6 +46,11 @@ const router = createRouter({
           path: 'sos',
           name: 'AdminSos',
           component: () => import('@/views/admin/SosView.vue')
+        },
+        {
+          path: 'tracking',
+          name: 'AdminTracking',
+          component: () => import('@/views/admin/TrackingView.vue')
         }
       ]
     }
