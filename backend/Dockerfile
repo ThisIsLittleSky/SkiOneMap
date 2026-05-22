@@ -1,9 +1,14 @@
 FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+
 RUN apt-get update && apt-get install -y maven && \
-    mvn clean package -DskipTests
+    rm -rf /var/lib/apt/lists/*
+
+COPY pom.xml .
+RUN mvn dependency:resolve -B
+
+COPY src ./src
+RUN mvn package -DskipTests -B
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app

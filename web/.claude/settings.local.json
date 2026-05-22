@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xxd)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(echo \"BUILD EXIT: $?\")",
+      "Bash(npx vite *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(kill %1)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:5175)",
+      "Bash(curl *)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build)",
+      "Bash(node ./node_modules/vite/bin/vite.js build --logLevel debug)",
+      "Bash(node ./node_modules/vite/bin/vite.js build)"
+    ]
+  }
+}

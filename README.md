@@ -176,8 +176,8 @@ cd ski-one-map
 
 # 2. 配置环境变量（参考上方"环境变量配置"章节）
 
-# 3. 一键启动全栈服务
-docker-compose up -d
+# 3. 一键构建并启动全栈服务
+docker-compose up -d --build
 
 # 4. 访问智慧大屏
 open http://localhost:9095
@@ -185,7 +185,47 @@ open http://localhost:9095
 
 > 默认账号：`admin` / 密码：`admin123`（首次登录后建议修改）
 
-服务端口一览：
+### 构建说明
+
+项目使用 `docker-compose build` 构建三个自定义镜像（MySQL 和 Redis 使用官方镜像）：
+
+| 镜像 | Dockerfile | 构建方式 |
+|------|-----------|---------|
+| `ski-backend` | `backend/Dockerfile` | Maven 多阶段构建（全量 `mvn clean package`） |
+| `ski-ai-engine` | `ai-engine/Dockerfile` | pip install + 源码 COPY |
+| `ski-frontend` | `frontend/Dockerfile` | `npm install` → `npm run build` → Nginx |
+
+> 注意：backend 使用 `mvn clean package` 全量编译，首次构建约 3-8 分钟（视网络而定），后续若仅改源码、未改 `pom.xml`，建议将 `pom.xml` 单独 COPY 并预拉取依赖以加速构建。
+
+### 导出镜像为 .tar 文件（离线部署）
+
+构建完成后，可将镜像导出为 `.tar` 文件，方便分发到离线环境：
+
+```bash
+# 1. 先构建所有镜像
+docker-compose build
+
+# 2. 导出项目自定义镜像（不含 MySQL/Redis 官方镜像）
+docker save -o ski-backend.tar    ski-backend:latest
+docker save -o ski-ai-engine.tar  ski-ai-engine:latest
+docker save -o ski-frontend.tar   ski-frontend:latest
+
+# 3. 导出所有镜像（含官方镜像），打包为单个 tar
+docker save -o ski-all.tar \
+  ski-backend:latest \
+  ski-ai-engine:latest \
+  ski-frontend:latest \
+  mysql:8.0 \
+  redis:7-alpine
+
+# 4. 在目标机器上导入镜像
+docker load -i ski-all.tar
+
+# 5. 启动服务
+docker-compose up -d
+```
+
+### 服务端口一览
 
 | 服务 | 地址 |
 |------|------|
