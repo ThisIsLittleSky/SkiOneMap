@@ -1,14 +1,14 @@
 import os
 import logging
 from typing import List, Dict, Any
-from app.services.rag_engine import RAGEngine
+from app.services.rag_engine import get_rag_engine
 
 logger = logging.getLogger(__name__)
 
 
 class RoutePredictor:
     def __init__(self):
-        self.rag_engine = RAGEngine()
+        self.rag_engine = get_rag_engine()
     
     def predict_route(
         self, 

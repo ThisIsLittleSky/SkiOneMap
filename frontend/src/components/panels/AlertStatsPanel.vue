@@ -31,14 +31,14 @@ const TYPES = [
 ]
 
 const total = computed(() =>
-  alertStore.alerts.flatMap(a => a.subAlerts || []).length
-  + alertStore.alerts.filter(a => TYPES.some(t => a.alertType === t.type)).length
+  alertStore.todayAlerts.flatMap(a => a.subAlerts || []).length
+  + alertStore.todayAlerts.filter(a => TYPES.some(t => a.alertType === t.type)).length
 )
 
 const stats = computed(() => {
   const counts: Record<string, number> = {}
   TYPES.forEach(t => { counts[t.type] = 0 })
-  alertStore.alerts.forEach(a => {
+  alertStore.todayAlerts.forEach(a => {
     if (counts[a.alertType] !== undefined) counts[a.alertType]++
     ;(a.subAlerts || []).forEach(s => { if (counts[s.alertType] !== undefined) counts[s.alertType]++ })
   })
@@ -49,16 +49,16 @@ const stats = computed(() => {
 
 <style scoped>
 .panel { height: 100%; display: flex; flex-direction: column; }
-.panel-title { font-size: 12px; font-weight: 600; color: #00e5ff; letter-spacing: 1px; padding-bottom: 8px; border-bottom: 1px solid #1e3a5f33; margin-bottom: 10px; }
+.panel-title { font-size: 12px; font-weight: 600; color: var(--color-primary); letter-spacing: 1px; padding-bottom: 8px; border-bottom: 1px solid var(--panel-title-border); margin-bottom: 10px; }
 .panel-body { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
 
 .stat-row { display: flex; align-items: center; gap: 8px; }
-.stat-type { width: 56px; font-size: 11px; color: #78909c; flex-shrink: 0; }
-.stat-bar-wrap { flex: 1; height: 6px; background: #1e3a5f; border-radius: 3px; overflow: hidden; }
+.stat-type { width: 56px; font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.stat-bar-wrap { flex: 1; height: 6px; background: var(--bg-track); border-radius: 3px; overflow: hidden; }
 .stat-bar { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
 .stat-count { width: 24px; font-size: 12px; font-weight: 600; text-align: right; }
 
-.total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e3a5f33; }
-.total-label { font-size: 11px; color: #546e7a; }
-.total-num { font-size: 20px; font-weight: 700; color: #00e5ff; }
+.total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--panel-title-border); }
+.total-label { font-size: 11px; color: var(--text-dim); }
+.total-num { font-size: 20px; font-weight: 700; color: var(--color-primary); }
 </style>

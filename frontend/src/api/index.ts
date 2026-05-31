@@ -289,8 +289,8 @@ export function getTaskTracks(taskId: number) {
   return apiClient.get<TrackSummary>(`/task/${taskId}/tracks`)
 }
 
-export function listTasks() {
-  return apiClient.get<Array<{ id: number; videoId: number; status: string; createdAt: string }>>('/task/list')
+export function listTasks(today?: boolean) {
+  return apiClient.get<Array<{ id: number; videoId: number; status: string; createdAt: string }>>('/task/list', { params: { today } })
 }
 
 export function listAlerts() {

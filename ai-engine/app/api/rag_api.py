@@ -95,9 +95,9 @@ async def rag_status():
             logger.warning("ChromaDB status check failed: %s", e)
     else:
         # 无 Embedding 模式：检查文档是否加载
-        from app.services.rag_engine import RAGEngine
+        from app.services.rag_engine import get_rag_engine
         try:
-            engine = RAGEngine()
+            engine = get_rag_engine()
             if engine._initialized and engine.documents:
                 chunk_count = len(engine.documents)
                 initialized = True
@@ -110,7 +110,7 @@ async def rag_status():
         except Exception as e:
             logger.warning("RAG engine status check failed: %s", e)
 
-    llm_model = os.getenv("QWEN_LLM_MODEL", "qwen3-max-2026-01-23")
+    llm_model = os.getenv("QWEN_LLM_MODEL", "qwen3.6-flash")
     embedding_model = os.getenv("QWEN_EMBEDDING_MODEL", "tongyi-embedding-vision-plus-2026-03-06")
 
     return {
@@ -163,10 +163,21 @@ async def preview_document(filename: str):
     fpath = os.path.join(kdir, filename)
     if not os.path.isfile(fpath):
         raise HTTPException(status_code=404, detail="文档不存在")
-    
+
     try:
-        with open(fpath, "r", encoding="utf-8") as f:
-            content = f.read(500)
+        ext = os.path.splitext(filename)[1].lower()
+        if ext == ".pdf":
+            import PyPDF2
+            reader = PyPDF2.PdfReader(fpath)
+            text_parts = []
+            for page in reader.pages[:3]:
+                t = page.extract_text()
+                if t:
+                    text_parts.append(t.strip())
+            content = "\n".join(text_parts)[:500]
+        else:
+            with open(fpath, "r", encoding="utf-8") as f:
+                content = f.read(500)
         return {"filename": filename, "preview": content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"读取失败: {str(e)}")
@@ -179,10 +190,10 @@ class QueryTestRequest(BaseModel):
 @router.post("/rag/test")
 async def test_query(req: QueryTestRequest):
     """查询测试：直接 RAG 检索 + LLM 回答，返回结构化结果。"""
-    from app.services.rag_engine import RAGEngine
+    from app.services.rag_engine import get_rag_engine
     
     start_time = time.time()
-    engine = RAGEngine()
+    engine = get_rag_engine()
     
     try:
         engine._init()
@@ -322,9 +333,9 @@ async def set_embedding_mode(req: EmbeddingModeRequest):
     os.environ["USE_EMBEDDING"] = new_value
     
     # 重置 RAG 引擎以应用新配置
-    from app.services.rag_engine import RAGEngine
+    from app.services.rag_engine import get_rag_engine
     try:
-        engine = RAGEngine()
+        engine = get_rag_engine()
         engine._initialized = False
         engine._init()
     except Exception as e:
@@ -334,10 +345,146 @@ async def set_embedding_mode(req: EmbeddingModeRequest):
     return {"status": "ok", "enabled": req.enabled, "message": f"Embedding 模式已{'开启' if req.enabled else '关闭'}"}
 
 
+class ExportPdfRequest(BaseModel):
+    query: str
+    answer: Dict[str, Any]
+    elapsed: float = 0.0
+
+
+@router.post("/rag/export-pdf")
+async def export_pdf(req: ExportPdfRequest):
+    """导出事故分析报告为 PDF。"""
+    from fpdf import FPDF
+    from io import BytesIO
+    from fastapi.responses import StreamingResponse
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    # 尝试加载中文字体
+    cjk_font = _find_cjk_font()
+
+    pdf.add_page()
+    pdf.ln(4)
+
+    # ── 标题 ──
+    if cjk_font:
+        pdf.add_font("cjk", "", cjk_font, uni=True)
+        pdf.add_font("cjk", "B", cjk_font, uni=True)
+        pdf.set_font("cjk", "B", 18)
+        pdf.cell(0, 12, "雪境智判 - 事故分析报告", align="C", new_x="LMARGIN", new_y="NEXT")
+    else:
+        pdf.set_font("Helvetica", "B", 18)
+        pdf.cell(0, 12, "Ski Accident Analysis Report", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+
+    # ── 分隔线 ──
+    pdf.set_line_width(0.6)
+    x0 = pdf.get_x()
+    y0 = pdf.get_y()
+    pdf.line(x0, y0, x0 + 190, y0)
+    pdf.ln(6)
+
+    def write(text, size=11, bold=False):
+        if cjk_font:
+            pdf.set_font("cjk", "B" if bold else "", size)
+        else:
+            pdf.set_font("Helvetica", "B" if bold else "", size)
+        pdf.multi_cell(0, size * 0.55, text, align="L")
+        pdf.ln(2)
+
+    # ── 查询信息 ──
+    write(f"查询问题：{req.query}", 10, bold=True)
+    write(f"分析耗时：{req.elapsed:.1f} 秒", 9)
+    pdf.ln(2)
+
+    answer = req.answer
+
+    # ── 责任占比 ──
+    liability = answer.get("liability", {})
+    parties = liability.get("parties", []) if liability else []
+    if parties:
+        write("责任占比", 13, bold=True)
+        for p in parties:
+            write(f"  {p.get('name', '?')}: {p.get('percentage', 0)}% - {p.get('reason', '')}", 10)
+        resort = liability.get("resort_liability", "")
+        if resort and resort != "无":
+            write(f"  雪场连带责任：{resort}", 10)
+        pdf.ln(2)
+
+    # ── 行为分析 ──
+    behavior = answer.get("behavior_analysis", "")
+    if behavior:
+        write("行为分析", 13, bold=True)
+        write(behavior, 10)
+        pdf.ln(2)
+
+    # ── 参考文献 ──
+    references = answer.get("references", [])
+    if references:
+        write("参考文献", 13, bold=True)
+        for i, ref in enumerate(references):
+            write(f"  [{i+1}] {ref.get('title', '')}", 10, bold=True)
+            write(f"      {ref.get('content', '')}", 9)
+        pdf.ln(2)
+
+    # ── 处理建议 ──
+    suggestion = answer.get("suggestion", "")
+    if suggestion:
+        write("处理建议", 13, bold=True)
+        write(suggestion, 10)
+
+    # ── 页脚 ──
+    pdf.ln(6)
+    pdf.set_line_width(0.3)
+    y1 = pdf.get_y()
+    pdf.line(pdf.get_x(), y1, pdf.get_x() + 190, y1)
+    pdf.ln(4)
+    write("本报告由雪境智判AI自动生成，仅供参考，不构成法律建议。", 8)
+
+    buf = BytesIO()
+    pdf.output(buf)
+    buf.seek(0)
+
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=accident_report.pdf"},
+    )
+
+
+def _find_cjk_font() -> Optional[str]:
+    """查找系统中可用的 CJK 中文字体。"""
+    candidates = [
+        # Linux
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+        "/usr/share/fonts/opentype/noto/NotoSansSC-Regular.otf",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        # macOS
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/STHeiti Light.ttc",
+        # Windows
+        "C:/Windows/Fonts/msyh.ttc",
+        "C:/Windows/Fonts/simsun.ttc",
+    ]
+    import glob as _glob
+    for cand in candidates:
+        if "*" in cand:
+            matches = _glob.glob(cand)
+            if matches:
+                return matches[0]
+        elif os.path.isfile(cand):
+            return cand
+    return None
+
+
 def _rebuild_index() -> int:
     """重建 ChromaDB 向量索引，返回 chunk 数量。"""
-    from app.services.rag_engine import RAGEngine
-    engine = RAGEngine()
+    from app.services.rag_engine import get_rag_engine
+    engine = get_rag_engine()
     engine._initialized = False  # 强制重新构建
     try:
         engine._init()

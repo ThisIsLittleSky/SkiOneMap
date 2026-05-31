@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface Alert {
   id: number
@@ -54,5 +54,10 @@ export const useAlertStore = defineStore('alert', () => {
     alerts.value = []
   }
 
-  return { alerts, wsConnected, initialized, taskCompletedSignal, addAlert, setHistoryAlerts, clearAlerts }
+  const todayAlerts = computed(() => {
+    const todayStr = new Date().toLocaleDateString('zh-CN')
+    return alerts.value.filter(a => a.createdAt && a.createdAt.startsWith(todayStr))
+  })
+
+  return { alerts, todayAlerts, wsConnected, initialized, taskCompletedSignal, addAlert, setHistoryAlerts, clearAlerts }
 })

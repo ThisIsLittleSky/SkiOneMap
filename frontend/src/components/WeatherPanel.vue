@@ -59,9 +59,9 @@ onMounted(fetchWeather)
 }
 
 .weather-icon { font-size: 22px; line-height: 1; }
-.temp-now { font-size: 22px; font-weight: 700; color: #e3f2fd; line-height: 1; }
-.weather-type { font-size: 12px; color: #90caf9; }
-.temp-range { font-size: 11px; color: #546e7a; }
-.weather-wind { font-size: 11px; color: #546e7a; }
-.loading { font-size: 12px; color: #37474f; }
+.temp-now { font-size: 22px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.weather-type { font-size: 12px; color: var(--text-secondary); }
+.temp-range { font-size: 11px; color: var(--text-dim); }
+.weather-wind { font-size: 11px; color: var(--text-dim); }
+.loading { font-size: 12px; color: var(--text-dark); }
 </style>

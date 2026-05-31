@@ -87,6 +87,20 @@ public class VideoController {
         return buildStreamResponse(Paths.get(path.get()), request);
     }
 
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file) {
+        try {
+            Video video = videoService.uploadVideo(file, 1L, null);
+            return ResponseEntity.ok(Map.of(
+                    "id", video.getId(),
+                    "filename", video.getFilename(),
+                    "status", video.getStatus()
+            ));
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     private ResponseEntity<Resource> buildStreamResponse(Path filePath, HttpServletRequest request) throws IOException {
         if (!Files.exists(filePath)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

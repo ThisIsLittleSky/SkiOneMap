@@ -31,3 +31,4 @@ Thumbs.db
 # Data
 data/
 models/*.pt
+web/public/demo.mp4

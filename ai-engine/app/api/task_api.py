@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.services.yolo_processor import YOLOProcessor
 from app.services.behavior_detector import detect_all
 from app.services.result_callback import ResultCallback
-from app.services.rag_engine import RAGEngine
+from app.services.rag_engine import get_rag_engine
 from app.services.video_annotator import VideoAnnotator
 
 import logging
@@ -27,7 +27,7 @@ async def receive_task(task: TaskRequest, background_tasks: BackgroundTasks):
 def process_task(task_id: int, video_url: str):
     processor = YOLOProcessor()
     callback = ResultCallback()
-    rag_engine = RAGEngine()
+    rag_engine = get_rag_engine()
     annotator = VideoAnnotator()
     try:
         callback.send_status(task_id, "PROCESSING")

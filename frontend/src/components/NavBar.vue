@@ -40,8 +40,8 @@ const unreadCount = computed(() => alertStore.alerts.length)
   justify-content: space-between;
   padding: 0 24px;
   height: 56px;
-  background: linear-gradient(90deg, #0d2137 0%, #0a1929 100%);
-  border-bottom: 1px solid #1e3a5f;
+  background: linear-gradient(90deg, var(--bg-nav-start) 0%, var(--bg-nav-end) 100%);
+  border-bottom: 1px solid var(--border-primary);
   flex-shrink: 0;
 }
 
@@ -58,7 +58,7 @@ const unreadCount = computed(() => alertStore.alerts.length)
 .brand-text {
   font-size: 16px;
   font-weight: 700;
-  color: #e3f2fd;
+  color: var(--text-primary);
   letter-spacing: 0.5px;
 }
 
@@ -72,7 +72,7 @@ const unreadCount = computed(() => alertStore.alerts.length)
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #90caf9;
+  color: var(--text-secondary);
   text-decoration: none;
   padding: 6px 16px;
   border-radius: 6px;
@@ -82,13 +82,13 @@ const unreadCount = computed(() => alertStore.alerts.length)
 }
 
 .nav-link:hover {
-  background: rgba(144, 202, 249, 0.1);
-  color: #e3f2fd;
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
 }
 
 .nav-link.active {
-  background: #1565c0;
-  color: #fff;
+  background: var(--color-nav-active-bg);
+  color: var(--text-white);
 }
 
 .nav-icon {
@@ -99,8 +99,8 @@ const unreadCount = computed(() => alertStore.alerts.length)
   position: absolute;
   top: 2px;
   right: 4px;
-  background: #f44336;
-  color: #fff;
+  background: var(--color-danger);
+  color: var(--text-white);
   font-size: 10px;
   padding: 1px 5px;
   border-radius: 10px;
@@ -119,19 +119,19 @@ const unreadCount = computed(() => alertStore.alerts.length)
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #78909c;
+  color: var(--text-muted);
 }
 
 .ws-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #616161;
+  background: var(--color-ws-dot-off);
   transition: background 0.3s;
 }
 
 .ws-dot.connected {
-  background: #4caf50;
-  box-shadow: 0 0 6px #4caf50;
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
 }
 </style>

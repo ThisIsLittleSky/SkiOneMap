@@ -35,46 +35,68 @@
       </div>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
-          让每一片雪坡都有<span class="text-geek-green">AI的眼睛</span><br/>
-          让每一份裁量都有<span class="text-justice-blue">有据可循</span>
+        <h1 class="text-[clamp(2rem,8vw,6.5rem)] font-extrabold text-gray-900 tracking-tight mb-6">
+          <span class="block whitespace-nowrap">让每一片雪坡都有<span class="text-geek-green">AI的眼睛</span></span>
+          <span class="block whitespace-nowrap">让每一份裁量都有<span class="text-justice-blue">有据可循</span></span>
         </h1>
         <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto mb-10">
           从摄像头部署方案到机器视觉与RAG法律知识图谱，为滑雪场提供一站式安全预警与事故定责解决方案。
         </p>
         
         <div class="mt-10 flex justify-center gap-x-6">
-          <a href="/demo.mp4" download class="rounded-md bg-justice-blue px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-justice-blue transition-all flex items-center gap-2">
-            <PlayCircle class="w-5 h-5" /> 观看系统演示
+          <a href="/demo.mp4" download class="rounded-md bg-justice-blue px-6 py-3 text-[clamp(0.75rem,2.2vw,1rem)] font-semibold text-white shadow-sm hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-justice-blue transition-all flex items-center gap-2">
+            <PlayCircle class="w-5 h-5 shrink-0" /><span class="inline-grid"><span>观看</span><span>系统演示</span></span>
           </a>
-          <a href="/雪境智判商业计划书.pdf" download class="rounded-md bg-white border border-gray-300 px-6 py-3 text-base font-semibold text-gray-900 shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2">
-            <FileText class="w-5 h-5" /> 获取方案白皮书
+          <a href="/雪境智判商业计划书.pdf" download class="rounded-md bg-white border border-gray-300 px-6 py-3 text-[clamp(0.75rem,2.2vw,1rem)] font-semibold text-gray-900 shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2">
+            <FileText class="w-5 h-5 shrink-0" /><span class="inline-grid"><span>获得</span><span>方案白皮书</span></span>
           </a>
         </div>
 
         <!-- Pain points stats -->
-        <div class="mt-20 grid grid-cols-3 gap-4 sm:gap-8 max-w-4xl mx-auto">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <div class="p-3 bg-red-50 text-red-600 rounded-full mb-4">
-              <CameraOff class="w-6 h-6" />
+        <div class="mt-20 max-w-4xl mx-auto">
+          <div class="grid grid-cols-3 gap-4 sm:gap-8">
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all hover:shadow-md"
+              :class="activePainPoint === 0 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+              @click="activePainPoint = 0"
+            >
+              <div class="flex flex-col items-center">
+                <div class="p-3 bg-red-50 text-red-600 rounded-full mb-4">
+                  <CameraOff class="w-6 h-6" />
+                </div>
+                <h3 class="text-lg font-semibold">举证难</h3>
+              </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">举证难</h3>
-            <p class="text-gray-500 text-sm text-center">传统监控盲区大，事故瞬间难捕捉，缺乏客观视觉证据。</p>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <div class="p-3 bg-orange-50 text-orange-600 rounded-full mb-4">
-              <Scale class="w-6 h-6" />
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all hover:shadow-md"
+              :class="activePainPoint === 1 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+              @click="activePainPoint = 1"
+            >
+              <div class="flex flex-col items-center">
+                <div class="p-3 bg-orange-50 text-orange-600 rounded-full mb-4">
+                  <Scale class="w-6 h-6" />
+                </div>
+                <h3 class="text-lg font-semibold">定责难</h3>
+              </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">定责难</h3>
-            <p class="text-gray-500 text-sm text-center">滑雪规则专业性强，碰撞瞬间速度/角度难以肉眼量化，权责不清。</p>
-          </div>
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <div class="p-3 bg-yellow-50 text-yellow-600 rounded-full mb-4">
-              <TrendingUp class="w-6 h-6" />
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border cursor-pointer transition-all hover:shadow-md"
+              :class="activePainPoint === 2 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+              @click="activePainPoint = 2"
+            >
+              <div class="flex flex-col items-center">
+                <div class="p-3 bg-yellow-50 text-yellow-600 rounded-full mb-4">
+                  <TrendingUp class="w-6 h-6" />
+                </div>
+                <h3 class="text-lg font-semibold">成本高</h3>
+              </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">成本高</h3>
-            <p class="text-gray-500 text-sm text-center">全覆盖改造硬件成本极高，后期纠纷处理耗费大量人力法务资源。</p>
           </div>
+          <Transition name="pain-desc" mode="out-in">
+            <div :key="activePainPoint" class="mt-4 bg-white border border-gray-200 rounded-xl px-6 py-4 shadow-sm">
+              <p class="text-gray-500 text-sm text-center">{{ painDescriptions[activePainPoint] }}</p>
+            </div>
+          </Transition>
         </div>
       </div>
     </section>
@@ -83,65 +105,64 @@
     <section id="solution" class="py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">“硬-软-法” 三位一体架构</h2>
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">"硬-软-法" <span class="text-red-600">三位一体</span>架构</h2>
           <p class="text-lg text-gray-600 max-w-2xl mx-auto">解耦式设计，从物理感知到法律裁决的无缝衔接。</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-8">
+        <div class="grid grid-cols-3 gap-4 sm:gap-5">
           <!-- Card 1 -->
-          <div class="group relative bg-glacier-white rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden">
+          <div
+            class="group relative bg-glacier-white rounded-2xl p-5 sm:p-6 hover:shadow-lg transition-all duration-300 border overflow-hidden cursor-pointer"
+            :class="activeArchLayer === 0 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+            @click="activeArchLayer = 0"
+          >
              <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-             <div class="relative z-10">
+             <div class="relative z-10 flex flex-col items-center text-center">
               <div class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 text-justice-blue">
                 <Radar class="w-6 h-6" />
               </div>
-              <h3 class="text-xl font-bold mb-3 text-gray-900">感知层：运筹学点位</h3>
-              <p class="text-gray-600 text-sm leading-relaxed mb-4">
-                基于运筹学模型实现摄像头无盲区部署最优解。支持利旧改造，兼容现有监控网络。
-              </p>
-              <ul class="text-sm text-gray-500 space-y-2">
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 消除99%盲区</li>
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 削减80%硬件成本</li>
-              </ul>
+              <h3 class="text-xl font-bold text-gray-900 leading-tight">感知层<br/>运筹学点位</h3>
             </div>
           </div>
 
           <!-- Card 2 -->
-          <div class="group relative bg-glacier-white rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden">
+          <div
+            class="group relative bg-glacier-white rounded-2xl p-5 sm:p-6 hover:shadow-lg transition-all duration-300 border overflow-hidden cursor-pointer"
+            :class="activeArchLayer === 1 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+            @click="activeArchLayer = 1"
+          >
              <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-green-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-             <div class="relative z-10">
+             <div class="relative z-10 flex flex-col items-center text-center">
               <div class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 text-geek-green">
                 <Cpu class="w-6 h-6" />
               </div>
-              <h3 class="text-xl font-bold mb-3 text-gray-900">计算层：视觉引擎</h3>
-              <p class="text-gray-600 text-sm leading-relaxed mb-4">
-                自研优化 YOLO11 算法，无惧风雪与强光。精准识别滑雪者行为、计算瞬时速度与横切角度。
-              </p>
-              <ul class="text-sm text-gray-500 space-y-2">
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 毫秒级行为分析</li>
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 复杂天气高鲁棒性</li>
-              </ul>
+              <h3 class="text-xl font-bold text-gray-900 leading-tight">计算层<br/>视觉引擎</h3>
             </div>
           </div>
 
           <!-- Card 3 -->
-          <div class="group relative bg-glacier-white rounded-2xl p-8 hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden">
+          <div
+            class="group relative bg-glacier-white rounded-2xl p-5 sm:p-6 hover:shadow-lg transition-all duration-300 border overflow-hidden cursor-pointer"
+            :class="activeArchLayer === 2 ? 'border-justice-blue shadow-md animate-pop' : 'border-gray-100'"
+            @click="activeArchLayer = 2"
+          >
              <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-             <div class="relative z-10">
+             <div class="relative z-10 flex flex-col items-center text-center">
               <div class="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center mb-6 text-indigo-600">
                 <BookOpen class="w-6 h-6" />
               </div>
-              <h3 class="text-xl font-bold mb-3 text-gray-900">决策层：法律大脑</h3>
-              <p class="text-gray-600 text-sm leading-relaxed mb-4">
-                基于3000+真实判例构建法律知识图谱。自动匹配国际雪联规则与国内法规，量化责任比例。
-              </p>
-              <ul class="text-sm text-gray-500 space-y-2">
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 自动生成分析意见书</li>
-                <li class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> 辅助司法调解参考</li>
-              </ul>
+              <h3 class="text-xl font-bold text-gray-900 leading-tight">决策层<br/>法律大脑</h3>
             </div>
           </div>
         </div>
+        <Transition name="pain-desc" mode="out-in">
+          <div :key="activeArchLayer" class="mt-4 bg-white border border-gray-200 rounded-xl px-6 py-4 shadow-sm">
+            <p class="text-gray-600 text-sm leading-relaxed mb-3 text-center">{{ archDetails[activeArchLayer].desc }}</p>
+            <ul class="flex justify-center gap-6 text-sm text-gray-500">
+              <li v-for="item in archDetails[activeArchLayer].items" :key="item" class="flex items-center gap-2"><CheckCircle2 class="w-4 h-4 text-geek-green" /> {{ item }}</li>
+            </ul>
+          </div>
+        </Transition>
       </div>
     </section>
 
@@ -149,7 +170,7 @@
     <section class="py-20 bg-white overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-8 sm:mb-16">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">一个入口，兼容所有AI与摄像头品牌</h2>
+          <h2 class="text-3xl font-bold text-gray-900 mb-4"><span class="block text-red-600">一个入口，</span><span class="block">兼容所有<span class="text-geek-green">AI</span>与<span class="text-justice-blue">摄像头品牌</span></span></h2>
           <p class="text-lg text-gray-600 max-w-2xl mx-auto">无缝兼容300+主流大语言模型、多模态模型、大视觉模型、摄像头视频流接口</p>
         </div>
         <div class="relative mx-auto h-[320px] w-[320px] sm:h-[500px] sm:w-[500px] lg:h-[600px] lg:w-[600px]">
@@ -357,7 +378,7 @@
     <section class="py-20 bg-gray-50 border-t border-gray-100">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mx-auto mb-12 max-w-3xl text-center">
-          <h2 class="text-3xl font-bold text-gray-900 mb-3">与优秀的人同行</h2>
+          <h2 class="text-3xl font-bold text-gray-900 mb-3">与<span class="text-red-600">优秀</span>的人同行</h2>
           <p class="text-gray-500 text-base">感谢每一位团队成员的热情与付出</p>
         </div>
         <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2 sm:gap-3">
@@ -368,35 +389,6 @@
             </div>
             <span class="text-gray-500 group-hover:text-gray-900 max-w-full truncate text-xs transition-colors sm:text-sm" style="font-family: 'SimHei', '黑体', 'Microsoft YaHei', sans-serif; font-weight: bold;">{{ member.name }}</span>
             <span class="text-black text-[10px] sm:text-xs">{{ member.role }}</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Trust & Security -->
-    <section class="py-16 bg-white border-t border-gray-100">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-center text-xl font-semibold text-gray-500 mb-10 tracking-wider">权威背书 与 隐私保障</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="flex flex-col items-center text-center">
-            <ShieldCheck class="w-10 h-10 text-gray-400 mb-3" />
-            <h4 class="font-medium text-gray-900">边缘脱敏技术</h4>
-            <p class="text-xs text-gray-500 mt-1">原始视频不上云，仅提取骨骼行为特征，保障用户隐私。</p>
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <Scale class="w-10 h-10 text-gray-400 mb-3" />
-            <h4 class="font-medium text-gray-900">合规辅具定位</h4>
-            <p class="text-xs text-gray-500 mt-1">报告作为“专家辅助人意见”参考，严格遵守法律规范。</p>
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <Award class="w-10 h-10 text-gray-400 mb-3" />
-            <h4 class="font-medium text-gray-900">知识产权背书</h4>
-            <p class="text-xs text-gray-500 mt-1">多项国家发明专利与软著保护，核心技术自主可控。</p>
-          </div>
-          <div class="flex flex-col items-center text-center">
-            <Trophy class="w-10 h-10 text-gray-400 mb-3" />
-            <h4 class="font-medium text-gray-900">行业认可</h4>
-            <p class="text-xs text-gray-500 mt-1">“挑战杯”等顶级竞赛荣誉，产学研深度融合成果。</p>
           </div>
         </div>
       </div>
@@ -462,6 +454,35 @@
             </div>
           </div>
         </a>
+      </div>
+    </section>
+
+    <!-- Trust & Security -->
+    <section class="py-16 bg-white border-t border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-center text-xl font-semibold text-gray-500 mb-10 tracking-wider">权威背书 与 隐私保障</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="flex flex-col items-center text-center">
+            <ShieldCheck class="w-10 h-10 text-gray-400 mb-3" />
+            <h4 class="font-medium text-gray-900">边缘脱敏技术</h4>
+            <p class="text-xs text-gray-500 mt-1">原始视频不上云，仅提取骨骼行为特征，保障用户隐私。</p>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <Scale class="w-10 h-10 text-gray-400 mb-3" />
+            <h4 class="font-medium text-gray-900">合规辅具定位</h4>
+            <p class="text-xs text-gray-500 mt-1">报告作为"专家辅助人意见"参考，严格遵守法律规范。</p>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <Award class="w-10 h-10 text-gray-400 mb-3" />
+            <h4 class="font-medium text-gray-900">知识产权背书</h4>
+            <p class="text-xs text-gray-500 mt-1">多项国家发明专利与软著保护，核心技术自主可控。</p>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <Trophy class="w-10 h-10 text-gray-400 mb-3" />
+            <h4 class="font-medium text-gray-900">行业认可</h4>
+            <p class="text-xs text-gray-500 mt-1">"挑战杯"等顶级竞赛荣誉，产学研深度融合成果。</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -601,6 +622,31 @@ const teamMembers = ref([
 ])
 
 // --- Contact Modal ---
+const activePainPoint = ref<number>(0)
+let painTimer: ReturnType<typeof setInterval> | null = null
+const painDescriptions = [
+  '传统监控盲区大，事故瞬间难捕捉，缺乏客观视觉证据。',
+  '滑雪规则专业性强，碰撞瞬间速度/角度难以肉眼量化，权责不清。',
+  '全覆盖改造硬件成本极高，后期纠纷处理耗费大量人力法务资源。',
+]
+
+const activeArchLayer = ref<number>(0)
+let archTimer: ReturnType<typeof setInterval> | null = null
+const archDetails = [
+  {
+    desc: '基于运筹学模型实现摄像头无盲区部署最优解。支持利旧改造，兼容现有监控网络。',
+    items: ['消除99%盲区', '削减80%硬件成本'],
+  },
+  {
+    desc: '自研优化 YOLO11 算法，无惧风雪与强光。精准识别滑雪者行为、计算瞬时速度与横切角度。',
+    items: ['毫秒级行为分析', '复杂天气高鲁棒性'],
+  },
+  {
+    desc: '基于3000+真实判例构建法律知识图谱。自动匹配国际雪联规则与国内法规，量化责任比例。',
+    items: ['自动生成分析意见书', '辅助司法调解参考'],
+  },
+]
+
 const showContactModal = ref(false)
 const modalCardRef = ref<HTMLDivElement | null>(null)
 const triggerRect = ref<DOMRect | null>(null)
@@ -975,6 +1021,12 @@ onMounted(() => {
     resizeObserver = new ResizeObserver(() => onResize())
     resizeObserver.observe(containerRef.value)
   }
+  painTimer = setInterval(() => {
+    activePainPoint.value = (activePainPoint.value + 1) % 3
+  }, 3000)
+  archTimer = setInterval(() => {
+    activeArchLayer.value = (activeArchLayer.value + 1) % 3
+  }, 4000)
 })
 
 onBeforeUnmount(() => {
@@ -982,6 +1034,14 @@ onBeforeUnmount(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
+  }
+  if (painTimer) {
+    clearInterval(painTimer)
+    painTimer = null
+  }
+  if (archTimer) {
+    clearInterval(archTimer)
+    archTimer = null
   }
 })
 </script>
@@ -995,5 +1055,29 @@ onBeforeUnmount(() => {
   cursor: pointer;
   accent-color: #1E3A8A;
   appearance: slider-vertical;
+}
+
+.pain-desc-enter-active {
+  transition: all 0.3s ease-out;
+}
+.pain-desc-leave-active {
+  transition: all 0.2s ease-in;
+}
+.pain-desc-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+@keyframes pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.35s ease-out;
+}
+
+.pain-desc-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
 }
 </style>

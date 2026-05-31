@@ -16,6 +16,16 @@ logger = logging.getLogger(__name__)
 KNOWLEDGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "knowledge")
 
 
+_rag_engine_instance: "RAGEngine | None" = None
+
+
+def get_rag_engine() -> "RAGEngine":
+    global _rag_engine_instance
+    if _rag_engine_instance is None:
+        _rag_engine_instance = RAGEngine()
+    return _rag_engine_instance
+
+
 class RAGEngine:
     def __init__(self):
         self.chroma_path = os.getenv("CHROMA_DB_PATH", "data/chroma")
@@ -23,7 +33,7 @@ class RAGEngine:
         self.qwen_base_url = os.getenv(
             "QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"
         )
-        self.llm_model = os.getenv("QWEN_LLM_MODEL", "qwen3-max-2026-01-23")
+        self.llm_model = os.getenv("QWEN_LLM_MODEL", "qwen3.6-flash")
         self.embedding_model = os.getenv("QWEN_EMBEDDING_MODEL", "text-embedding-v3")
         # DashScope SDK 需要通过环境变量或参数获取 API Key
         if self.qwen_api_key:
@@ -32,12 +42,19 @@ class RAGEngine:
         self.use_embedding = os.getenv("USE_EMBEDDING", "true").lower() == "true"
         self.index = None
         self.documents = []  # 直接加载的文档内容
+        self._llm_client: OpenAI | None = None
         self._initialized = False
         # 启动时自动初始化
         try:
             self._init()
         except Exception as e:
             logger.warning("Failed to auto-initialize RAG engine: %s", e)
+
+    @property
+    def llm_client(self) -> OpenAI:
+        if self._llm_client is None:
+            self._llm_client = OpenAI(api_key=self.qwen_api_key, base_url=self.qwen_base_url)
+        return self._llm_client
 
     def _init(self):
         if self._initialized:

@@ -52,7 +52,7 @@ class VideoServiceTest {
             return 1;
         }).when(videoRepository).insert(any(Video.class));
 
-        Video result = videoService.uploadVideo(file, 1L);
+        Video result = videoService.uploadVideo(file, 1L, 1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
@@ -76,7 +76,7 @@ class VideoServiceTest {
             return 1;
         }).when(videoRepository).insert(any(Video.class));
 
-        Video result = videoService.uploadVideo(file, 1L);
+        Video result = videoService.uploadVideo(file, 1L, 1L);
         assertThat(result).isNotNull();
     }
 

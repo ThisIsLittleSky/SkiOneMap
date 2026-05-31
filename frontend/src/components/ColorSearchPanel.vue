@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   cameraIds: number[]
   searching: boolean
 }>()

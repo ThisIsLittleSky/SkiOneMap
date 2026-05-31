@@ -17,6 +17,21 @@
         <div class="title-badge">AI · 数字孪生</div>
       </div>
       <div class="header-right">
+        <button
+          class="theme-toggle"
+          @click="toggleTheme"
+          :title="theme === 'dark' ? '切换到冰雪极简风' : '切换到暗黑科技风'"
+        >
+          <!-- 暗黑模式 → 显示雪花图标（切换到冰雪风） -->
+          <svg v-if="theme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/>
+          </svg>
+          <!-- 冰雪模式 → 显示月亮图标（切换回暗黑） -->
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
         <WeatherPanel :city-code="weatherCityCode" />
         <div class="header-actions">
           <span class="ws-indicator">
@@ -69,6 +84,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAlertStore } from '@/stores/alertStore'
+import { useTheme } from '@/composables/useTheme'
 import { listCameras, getSceneConfig, type CameraInfo } from '@/api'
 
 import SkiScene3D from '@/components/SkiScene3D.vue'
@@ -82,6 +98,7 @@ import AnalysisSummaryPanel from '@/components/panels/AnalysisSummaryPanel.vue'
 import TrackMonitorPanel from '@/components/panels/TrackMonitorPanel.vue'
 
 const alertStore = useAlertStore()
+const { theme, toggleTheme } = useTheme()
 const cameras = ref<CameraInfo[]>([])
 const weatherCityCode = ref('101090301')
 const currentTime = ref('')
@@ -114,7 +131,7 @@ onUnmounted(() => clearInterval(timer))
 .dashboard {
   width: 100%;
   height: 100vh;
-  background: #030d18;
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -128,8 +145,8 @@ onUnmounted(() => clearInterval(timer))
   justify-content: space-between;
   padding: 0 24px;
   height: 64px;
-  background: linear-gradient(180deg, #061220 0%, #030d18 100%);
-  border-bottom: 1px solid #00e5ff22;
+  background: linear-gradient(180deg, var(--bg-header-start) 0%, var(--bg-header-end) 100%);
+  border-bottom: 1px solid var(--border-light);
   flex-shrink: 0;
   position: relative;
   z-index: 10;
@@ -140,13 +157,13 @@ onUnmounted(() => clearInterval(timer))
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #00e5ff88, transparent);
+  background: linear-gradient(90deg, transparent, var(--color-primary-glow), transparent);
 }
 
 .header-left { display: flex; flex-direction: column; gap: 2px; }
 .header-title { font-size: 22px; font-weight: 700; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
 .title-glow {
-  background: linear-gradient(90deg, #00e5ff, #7c4dff, #00e5ff);
+  background: linear-gradient(90deg, var(--title-gradient-from), var(--title-gradient-via), var(--title-gradient-to));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -157,14 +174,14 @@ onUnmounted(() => clearInterval(timer))
 .title-badge {
   font-size: 10px;
   padding: 2px 8px;
-  background: rgba(124, 77, 255, 0.15);
-  color: #b39ddb;
-  border: 1px solid #7c4dff44;
+  background: var(--bg-badge-purple);
+  color: var(--text-purple);
+  border: 1px solid var(--border-purple);
   border-radius: 10px;
   letter-spacing: 1px;
   font-weight: 400;
 }
-.header-sub { font-size: 11px; color: #37474f; letter-spacing: 1px; }
+.header-sub { font-size: 11px; color: var(--text-dark); letter-spacing: 1px; }
 
 .header-left { display: flex; flex-direction: column; gap: 3px; }
 .header-center {
@@ -176,7 +193,7 @@ onUnmounted(() => clearInterval(timer))
   align-items: center;
   gap: 3px;
 }
-.datetime { font-size: 13px; color: #546e7a; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+.datetime { font-size: 13px; color: var(--text-dim); font-variant-numeric: tabular-nums; letter-spacing: 1px; }
 
 /* 装饰角 */
 .corner-deco {
@@ -187,35 +204,58 @@ onUnmounted(() => clearInterval(timer))
 .corner-deco.top-left {
   top: 8px;
   left: 10px;
-  border-top: 2px solid #00e5ff66;
-  border-left: 2px solid #00e5ff66;
+  border-top: 2px solid var(--color-primary-soft);
+  border-left: 2px solid var(--color-primary-soft);
 }
 .corner-deco.top-right {
   top: 8px;
   right: 10px;
-  border-top: 2px solid #00e5ff66;
-  border-right: 2px solid #00e5ff66;
+  border-top: 2px solid var(--color-primary-soft);
+  border-right: 2px solid var(--color-primary-soft);
 }
 
-.header-right { display: flex; align-items: center; gap: 20px; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+
+/* 风格切换按钮 */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--border-accent);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.theme-toggle:hover {
+  background: var(--bg-card-active);
+  border-color: var(--color-primary);
+}
+.theme-toggle svg {
+  display: block;
+}
 
 .header-actions { display: flex; align-items: center; gap: 12px; }
-.ws-indicator { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #37474f; }
-.ws-dot { width: 7px; height: 7px; border-radius: 50%; background: #616161; }
-.ws-dot.connected { background: #00e5ff; box-shadow: 0 0 6px #00e5ff; animation: pulse 2s infinite; }
+.ws-indicator { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dark); }
+.ws-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-ws-dot-off); }
+.ws-dot.connected { background: var(--color-primary); box-shadow: 0 0 6px var(--color-primary); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 .btn-admin {
   padding: 5px 14px;
   background: transparent;
-  color: #00e5ff;
-  border: 1px solid #00e5ff44;
+  color: var(--color-primary);
+  border: 1px solid var(--border-accent);
   border-radius: 4px;
   text-decoration: none;
   font-size: 12px;
   transition: all 0.2s;
 }
-.btn-admin:hover { background: #00e5ff11; border-color: #00e5ff; }
+.btn-admin:hover { background: var(--bg-card-active); border-color: var(--color-primary); }
 
 /* ── 主体场景区域 ── */
 .scene-wrapper {
@@ -232,17 +272,17 @@ onUnmounted(() => clearInterval(timer))
 /* ── 6个面板定位 ── */
 .panel-container {
   position: absolute;
-  background: rgba(3, 13, 24, 0.82);
-  border: 1px solid #00e5ff1a;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 12px 14px;
   backdrop-filter: blur(12px);
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.05), inset 0 0 20px rgba(0, 229, 255, 0.02);
+  box-shadow: var(--shadow-panel), var(--shadow-glow);
   transition: border-color 0.3s;
 }
 
 .panel-container:hover {
-  border-color: #00e5ff44;
+  border-color: var(--border-accent);
 }
 
 /* 左侧上 */
@@ -298,7 +338,7 @@ onUnmounted(() => clearInterval(timer))
   position: absolute;
   left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #00e5ff66, transparent);
+  background: linear-gradient(90deg, transparent, var(--scan-line-color), transparent);
   animation: scan 6s linear infinite;
   pointer-events: none;
   top: 0;

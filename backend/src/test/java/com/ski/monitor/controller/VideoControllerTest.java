@@ -53,7 +53,7 @@ class VideoControllerTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "ski.mp4", "video/mp4", "fake".getBytes()
         );
-        when(videoService.uploadVideo(any(), eq(1L))).thenReturn(makeVideo(1L, "ski.mp4", "UPLOADED"));
+        when(videoService.uploadVideo(any(), eq(1L), eq(1L))).thenReturn(makeVideo(1L, "ski.mp4", "UPLOADED"));
 
         mockMvc.perform(multipart("/api/video/upload").file(file))
                 .andExpect(status().isOk())
@@ -67,7 +67,7 @@ class VideoControllerTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "bad.mp4", "video/mp4", "x".getBytes()
         );
-        when(videoService.uploadVideo(any(), eq(1L))).thenThrow(new java.io.IOException("disk full"));
+        when(videoService.uploadVideo(any(), eq(1L), eq(1L))).thenThrow(new java.io.IOException("disk full"));
 
         mockMvc.perform(multipart("/api/video/upload").file(file))
                 .andExpect(status().isInternalServerError())

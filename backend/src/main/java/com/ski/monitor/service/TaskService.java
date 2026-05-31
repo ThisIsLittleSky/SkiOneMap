@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,17 @@ public class TaskService {
 
     public List<Task> listAll() {
         return taskRepository.selectList(null);
+    }
+
+    public List<Task> listToday() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+        return taskRepository.selectList(
+                new QueryWrapper<Task>()
+                        .ge("created_at", startOfDay)
+                        .lt("created_at", endOfDay)
+                        .orderByDesc("created_at"));
     }
 
     public Optional<String> getAnnotatedVideoPath(Long taskId) {

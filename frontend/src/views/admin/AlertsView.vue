@@ -158,25 +158,25 @@ function goToTracking(videoId: number) {
 <style scoped>
 .page-body { padding: 24px 28px; max-width: 1000px; }
 
-.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid #1e3a5f; }
-.tabs button { padding: 8px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: #78909c; font-size: 14px; cursor: pointer; margin-bottom: -1px; }
-.tabs button.active { color: #90caf9; border-bottom-color: #1976d2; }
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border-primary); }
+.tabs button { padding: 8px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-size: 14px; cursor: pointer; margin-bottom: -1px; }
+.tabs button.active { color: var(--text-secondary); border-bottom-color: var(--color-admin-focus); }
 
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.ws-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #78909c; }
-.ws-dot { width: 8px; height: 8px; border-radius: 50%; background: #616161; }
-.ws-dot.connected { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
+.ws-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.ws-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ws-dot-off); }
+.ws-dot.connected { background: var(--color-success); box-shadow: 0 0 5px var(--color-success); }
 
-.btn-clear { padding: 4px 12px; font-size: 12px; background: #1a2e44; color: #90caf9; border: 1px solid #2a4a6a; border-radius: 4px; cursor: pointer; }
-.tip { color: #37474f; font-size: 14px; padding: 20px 0; }
-.tip-sm { font-size: 12px; color: #546e7a; }
+.btn-clear { padding: 4px 12px; font-size: 12px; background: var(--bg-admin-input); color: var(--text-secondary); border: 1px solid var(--border-admin-input); border-radius: 4px; cursor: pointer; }
+.tip { color: var(--text-dark); font-size: 14px; padding: 20px 0; }
+.tip-sm { font-size: 12px; color: var(--text-dim); }
 
 .alert-cards { display: flex; flex-direction: column; gap: 10px; }
-.alert-card { border: 1px solid #1e3a5f; border-radius: 8px; overflow: hidden; border-left: 4px solid #2196f3; background: #0d1f33; }
+.alert-card { border: 1px solid var(--border-primary); border-radius: 8px; overflow: hidden; border-left: 4px solid #2196f3; background: var(--bg-admin-card); }
 .alert-card.severity-warning { border-left-color: #ff9800; }
 .alert-card.severity-danger, .alert-card.severity-error { border-left-color: #f44336; }
-.alert-card-header { display: flex; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,0.03); font-size: 13px; border-bottom: 1px solid #1e3a5f; }
-.alert-type { font-weight: 600; color: #cfd8dc; }
+.alert-card-header { display: flex; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,0.03); font-size: 13px; border-bottom: 1px solid var(--border-primary); }
+.alert-type { font-weight: 600; color: var(--text-primary); }
 .alert-severity { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(33,150,243,0.15); color: #64b5f6; }
 .alert-card-body { padding: 10px 14px; font-size: 13px; color: #90a4ae; }
 .sub-alerts { margin-top: 8px; }
@@ -184,25 +184,25 @@ function goToTracking(videoId: number) {
 .sub-alerts li { margin-bottom: 3px; line-height: 1.5; }
 .liability { margin-top: 10px; padding: 8px 12px; background: rgba(25,118,210,0.08); border-left: 3px solid #1976d2; border-radius: 0 4px 4px 0; font-size: 12px; }
 .liability pre { white-space: pre-wrap; word-break: break-word; margin-top: 4px; font-family: 'Microsoft YaHei', sans-serif; font-size: 12px; line-height: 1.7; color: #b0bec5; }
-.alert-card-footer { display: flex; justify-content: space-between; padding: 6px 14px; font-size: 11px; color: #37474f; border-top: 1px solid #1a2e44; }
+.alert-card-footer { display: flex; justify-content: space-between; padding: 6px 14px; font-size: 11px; color: var(--text-dark); border-top: 1px solid var(--border-admin-table); }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #1a2e44; }
-th { background: #0d1f33; color: #78909c; font-weight: 600; }
-tr:hover td { background: rgba(21,101,192,0.06); }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-admin-table); }
+th { background: var(--bg-admin-card); color: var(--text-muted); font-weight: 600; }
+tr:hover td { background: var(--bg-card-hover); }
 
 .status-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
 .status-pending { background: rgba(96,125,139,0.2); color: #90a4ae; }
 .status-processing { background: rgba(230,81,0,0.2); color: #ffb74d; }
 .status-completed { background: rgba(46,125,50,0.2); color: #81c784; }
-.status-failed { background: rgba(198,40,40,0.2); color: #ef9a9a; }
+.status-failed { background: rgba(198,40,40,0.2); color: var(--text-danger); }
 
 .btn-detail, .btn-track { padding: 4px 10px; font-size: 12px; background: transparent; color: #64b5f6; border: 1px solid #1565c0; border-radius: 4px; cursor: pointer; margin-right: 6px; }
 .btn-track { color: #81c784; border-color: #2e7d32; }
 
-.task-detail { margin-top: 20px; border: 1px solid #1e3a5f; border-radius: 8px; background: #0d1f33; overflow: hidden; }
-.detail-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #1e3a5f; font-size: 14px; color: #90caf9; }
-.btn-close { background: none; border: none; color: #546e7a; font-size: 20px; cursor: pointer; }
+.task-detail { margin-top: 20px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--bg-admin-card); overflow: hidden; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border-primary); font-size: 14px; color: var(--text-secondary); }
+.btn-close { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
 .detail-body { padding: 14px 16px; font-size: 13px; color: #90a4ae; display: flex; flex-direction: column; gap: 8px; }
 .annotated-video { display: flex; flex-direction: column; gap: 8px; }
 .detail-video { width: 100%; max-height: 420px; background: #000; border-radius: 6px; }

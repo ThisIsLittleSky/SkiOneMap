@@ -109,7 +109,7 @@ interface LiabilityItem {
 }
 
 const items = computed<LiabilityItem[]>(() => {
-  return alertStore.alerts
+  return alertStore.todayAlerts
     .filter(a => a.liabilitySuggestion || a.rawStatus === 'COMPLETED')
     .slice(0, 5)
     .map(a => {
@@ -158,10 +158,10 @@ const items = computed<LiabilityItem[]>(() => {
 .panel-title {
   font-size: 12px;
   font-weight: 600;
-  color: #00e5ff;
+  color: var(--color-primary);
   letter-spacing: 1px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #1e3a5f33;
+  border-bottom: 1px solid var(--panel-title-border);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -172,9 +172,9 @@ const items = computed<LiabilityItem[]>(() => {
   margin-left: auto;
   font-size: 9px;
   padding: 1px 5px;
-  background: rgba(244, 67, 54, 0.2);
-  color: #ef9a9a;
-  border: 1px solid #c6282844;
+  background: var(--bg-badge-danger-alt);
+  color: var(--text-danger);
+  border: 1px solid var(--border-danger);
   border-radius: 10px;
   animation: blink 2s infinite;
 }
@@ -190,13 +190,13 @@ const items = computed<LiabilityItem[]>(() => {
   justify-content: center;
   gap: 6px;
   font-size: 12px;
-  color: #37474f;
+  color: var(--text-dark);
 }
 .empty-icon { font-size: 24px; opacity: 0.4; }
 
 .liability-item {
-  background: rgba(0, 229, 255, 0.03);
-  border: 1px solid #1e3a5f;
+  background: var(--bg-liability-item);
+  border: 1px solid var(--border-primary);
   border-radius: 6px;
   padding: 8px 10px;
   display: flex;
@@ -204,26 +204,26 @@ const items = computed<LiabilityItem[]>(() => {
   gap: 5px;
   transition: border-color 0.2s;
 }
-.liability-item:hover { border-color: #00e5ff33; }
+.liability-item:hover { border-color: var(--border-accent); }
 
 .item-header {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.task-id { font-size: 12px; color: #00e5ff; font-weight: 700; }
-.task-hash { color: #0097a7; font-size: 10px; }
+.task-id { font-size: 12px; color: var(--color-primary); font-weight: 700; }
+.task-hash { color: var(--color-task-hash); font-size: 10px; }
 
 .item-status {
   font-size: 9px;
   padding: 1px 6px;
   border-radius: 10px;
 }
-.item-status.completed { background: rgba(0,229,255,0.12); color: #00e5ff; }
-.item-status.processing { background: rgba(255,152,0,0.12); color: #ffb74d; }
-.item-status.failed { background: rgba(244,67,54,0.12); color: #ef9a9a; }
+.item-status.completed { background: var(--bg-badge-success); color: var(--color-primary); }
+.item-status.processing { background: var(--bg-badge-warning); color: var(--text-warning); }
+.item-status.failed { background: var(--bg-badge-danger); color: var(--text-danger); }
 
-.item-time { font-size: 10px; color: #37474f; margin-left: auto; }
+.item-time { font-size: 10px; color: var(--text-dark); margin-left: auto; }
 
 /* 责任比例 */
 .liability-bars {
@@ -236,8 +236,8 @@ const items = computed<LiabilityItem[]>(() => {
   align-items: center;
   gap: 5px;
 }
-.party-name { font-size: 10px; color: #78909c; width: 36px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.party-bar-wrap { flex: 1; height: 5px; background: #1e3a5f; border-radius: 3px; overflow: hidden; }
+.party-name { font-size: 10px; color: var(--text-muted); width: 36px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.party-bar-wrap { flex: 1; height: 5px; background: var(--bg-track); border-radius: 3px; overflow: hidden; }
 .party-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
 .party-pct { font-size: 11px; font-weight: 600; width: 30px; text-align: right; flex-shrink: 0; }
 
@@ -246,9 +246,9 @@ const items = computed<LiabilityItem[]>(() => {
 .legal-tag {
   font-size: 9px;
   padding: 1px 6px;
-  background: rgba(124, 77, 255, 0.12);
-  color: #b39ddb;
-  border: 1px solid #7c4dff33;
+  background: var(--bg-badge-purple);
+  color: var(--text-purple);
+  border: 1px solid var(--border-purple);
   border-radius: 10px;
   white-space: nowrap;
   overflow: hidden;
@@ -256,15 +256,15 @@ const items = computed<LiabilityItem[]>(() => {
   text-overflow: ellipsis;
 }
 
-.item-summary { font-size: 11px; color: #78909c; line-height: 1.5; }
+.item-summary { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
 
 .item-alerts { display: flex; gap: 4px; flex-wrap: wrap; }
 .alert-tag {
   font-size: 10px;
   padding: 1px 6px;
-  background: rgba(244, 67, 54, 0.12);
-  color: #ef9a9a;
+  background: var(--bg-badge-danger);
+  color: var(--text-danger);
   border-radius: 10px;
-  border: 1px solid #c6282833;
+  border: 1px solid var(--border-danger);
 }
 </style>

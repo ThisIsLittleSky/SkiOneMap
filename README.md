@@ -32,14 +32,16 @@
 | 🗺️ **雪场数字孪生大屏** | 基于 Three.js + 真实 GLB 模型，3D 全景展示雪场，支持缩放旋转，摄像头位置实时标注 |
 | 📷 **摄像头全生命周期管理** | 后台配置摄像头 3D 坐标与状态，一张图动态呈现所有在线/离线摄像头 |
 | 🎥 **事故视频一键上传分析** | 向指定摄像头上传事故视频，自动触发 AI 分析任务，WebSocket 实时推送进度 |
-| 🤖 **AI 行为识别** | YOLOv8 检测逆行、超速、碰撞风险、静止预警等高危行为，帧级精准定位 |
+| 🤖 **AI 行为识别** | YOLOv11 检测逆行、超速、碰撞风险、静止预警等高危行为，帧级精准定位 |
 | ⚖️ **智能定责引擎** | RAG（LlamaIndex）结合《FIS 国际雪联规则》等知识库，秒级生成责任比例 + 法律条文依据 |
 | 🧭 **雪境智判-滑雪伴侣** | 提供事故救援（SOS）记录管理、现场辅助处置入口与安全服务联动能力 |
+| 🤖 **雪境智判AI** | 对话式 AI 分析助手，支持上传事故视频或直接提问，流程链表可视化展示分析进度，自动生成结构化定责报告并支持 PDF 导出 |
 | 💬 **雪境智判-AI助手小雪** | 新增可视化知识库管理、测试查询、查询历史与性能统计，支持 RAG 流程优化与 Embedding 模式切换 |
 | 👁 **雪境智判-天眼追踪** | 支持按人员追踪与按颜色搜索，结合行人重识别、外观分析与路线预测完成跨摄像头追踪 |
 | 🌤️ **实时天气接入** | 接入国家气象局接口，顶部导航栏实时展示雪场所在地天气、温度、风力 |
 | 📊 **6 大数据面板** | 事故定责列表、预警统计、摄像头状态、雪道安全指数、分析汇总、实时轨迹监控 |
 | 🔐 **全路由鉴权** | 访问大屏与后台均需登录，session 级 token 验证，每次访问前自动清除旧凭证 |
+| 🌐 **产品官网** | 独立的品牌落地页，展示产品功能、架构亮点与团队信息，支持响应式布局 |
 
 ---
 
@@ -81,6 +83,27 @@
 
 ---
 
+### 4. 产品官网
+
+- 新增独立的 **产品官网/落地页**（`web` 模块），基于 Vue 3 + TailwindCSS + Three.js 构建
+- 支持产品功能介绍、架构亮点展示、团队信息等品牌展示页面
+- 支持响应式布局，适配桌面与移动端浏览
+
+---
+
+### 5. 雪境智判AI（对话式分析助手）
+
+- 后台新增 **雪境智判AI** 对话页面，设为后台管理默认首页
+- 支持两种分析模式：
+  - **视频分析模式**：上传事故视频，自动触发 YOLO 分析 → 行为量化 → 法律检索 → 报告生成全链路
+  - **纯文本问答模式**：直接输入滑雪事故相关问题，AI 基于知识库进行检索增强回答
+- 分析过程以 **流程链表（垂直时间线）** 实时展示进度，包含 6 个步骤节点（视频上传、视觉算法分析、行为量化、法律向量库检索、行为与法律结合、报告生成）
+- 完成后展示 **YOLO 标注视频** 与 **事故分析报告卡片**，点击可查看完整结构化报告（责任占比、行为分析、参考文献、处理建议）
+- 支持 **一键导出事故分析报告 PDF**
+- 预设推荐问题，方便快速体验核心能力
+
+---
+
 ## 🏗️ 系统架构
 
 ```
@@ -109,7 +132,7 @@
 │   FastAPI AI Engine  │      │     MySQL 8.0         │
 │   (port 8001)        │      │     ski_db            │
 │  ┌────────────────┐  │      │  videos / tasks       │
-│  │  YOLOv8 推理   │  │      │  alerts / cameras     │
+│  │  YOLOv11 推理   │  │      │  alerts / cameras     │
 │  │  LlamaIndex RAG│  │      │  scene_config / users │
 │  └────────────────┘  │      └──────────────────────┘
 └──────────────────────┘
@@ -121,7 +144,9 @@
 |------|--------|------|
 | `frontend` | Vue 3 · Vite · Three.js · Pinia · ECharts | 智慧大屏 + 后台管理 SPA |
 | `backend` | Spring Boot 3 · MySQL · Redis · WebSocket | 业务逻辑、任务调度、鉴权、实时推送 |
-| `ai-engine` | FastAPI · YOLOv8 · LlamaIndex · ChromaDB | 视频分析、行为识别、RAG 定责 |
+| `ai-engine` | FastAPI · YOLOv11 · LlamaIndex · ChromaDB | 视频分析、行为识别、RAG 定责 |
+| `web` | Vue 3 · Vite · TailwindCSS · Three.js | 产品官网/落地页 |
+| `app` | H5 | 移动端滑雪伴侣页面 |
 
 ---
 
@@ -134,7 +159,7 @@
 ```cmd
 setx QWEN_API_KEY "your_qwen_api_key_here"
 setx QWEN_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
-setx QWEN_LLM_MODEL "qwen3-max-2026-01-23"
+setx QWEN_LLM_MODEL "qwen3.6-flash"
 setx QWEN_EMBEDDING_MODEL "text-embedding-v4"
 setx USE_EMBEDDING "true"
 ```
@@ -144,7 +169,7 @@ setx USE_EMBEDDING "true"
 ```powershell
 [Environment]::SetEnvironmentVariable("QWEN_API_KEY", "your_qwen_api_key_here", "User")
 [Environment]::SetEnvironmentVariable("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1", "User")
-[Environment]::SetEnvironmentVariable("QWEN_LLM_MODEL", "qwen3-max-2026-01-23", "User")
+[Environment]::SetEnvironmentVariable("QWEN_LLM_MODEL", "qwen3.6-flash", "User")
 [Environment]::SetEnvironmentVariable("QWEN_EMBEDDING_MODEL", "text-embedding-v4", "User")
 [Environment]::SetEnvironmentVariable("USE_EMBEDDING", "true", "User")
 ```
@@ -156,7 +181,7 @@ setx USE_EMBEDDING "true"
 ```bash
 export QWEN_API_KEY=your_qwen_api_key_here
 export QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-export QWEN_LLM_MODEL=qwen3-max-2026-01-23
+export QWEN_LLM_MODEL=qwen3.6-flash
 export QWEN_EMBEDDING_MODEL=text-embedding-v4
 export USE_EMBEDDING=true
 ```
@@ -199,36 +224,24 @@ open http://localhost:9095
 
 ### 导出镜像为 .tar 文件（离线部署）
 
-构建完成后，可将镜像导出为 `.tar` 文件，方便分发到离线环境：
+构建完成后，一行命令即可将所有镜像（含 MySQL/Redis）打包为单个 `ski-all.tar`，方便分发到离线环境：
 
 ```bash
-# 1. 先构建所有镜像
-docker-compose build
+# 1. 拉取官方镜像 + 构建项目镜像
+docker compose pull mysql redis && docker compose build
 
-# 2. 导出项目自定义镜像（不含 MySQL/Redis 官方镜像）
-docker save -o ski-backend.tar    ski-backend:latest
-docker save -o ski-ai-engine.tar  ski-ai-engine:latest
-docker save -o ski-frontend.tar   ski-frontend:latest
+# 2. 一键导出所有镜像为 ski-all.tar
+docker save -o ski-all.tar ski-backend:latest ski-ai-engine:latest ski-frontend:latest mysql:8.0 redis:7-alpine
 
-# 3. 导出所有镜像（含官方镜像），打包为单个 tar
-docker save -o ski-all.tar \
-  ski-backend:latest \
-  ski-ai-engine:latest \
-  ski-frontend:latest \
-  mysql:8.0 \
-  redis:7-alpine
-
-# 4. 在目标机器上导入镜像
-docker load -i ski-all.tar
-
-# 5. 启动服务
-docker-compose up -d
+# 3. 在目标机器上导入并启动
+docker load -i ski-all.tar && docker compose up -d
 ```
 
 ### 服务端口一览
 
 | 服务 | 地址 |
 |------|------|
+| 产品官网 | http://localhost:5173（`cd web && npm run dev`） |
 | 智慧大屏 / 后台管理 | http://localhost:9095 |
 | Spring Boot API | http://localhost:8085 |
 | AI 引擎 | http://localhost:8001 |
@@ -255,7 +268,16 @@ npm run dev
 # 访问 http://localhost:9095
 ```
 
-### 2. 后端
+### 2. 官网 (web)
+
+```bash
+cd web
+npm install
+npm run dev
+# 访问 http://localhost:5173
+```
+
+### 4. 后端
 
 ```bash
 cd backend
@@ -263,7 +285,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-### 3. AI 引擎
+### 5. AI 引擎
 
 ```bash
 cd ai-engine
@@ -276,7 +298,7 @@ pip install -i https://pypi.org/simple --no-cache-dir -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 4. 数据库初始化
+### 6. 数据库初始化
 
 ```bash
 mysql -u root -p ski_db < docker/mysql/init.sql
@@ -305,8 +327,11 @@ ski/
 │       ├── entity/         # JPA 实体
 │       └── repository/     # 数据访问
 ├── ai-engine/              # FastAPI AI 服务
+├── web/                    # 产品官网/落地页 (Vue 3 + TailwindCSS)
+├── app/                    # 移动端 H5 页面
 ├── docker/                 # Docker 配置 & SQL 初始化
 ├── docker-compose.yml
+├── assets/                 # README 截图 & 演示素材
 └── docs/                   # 开发阶段报告
 ```
 
@@ -315,14 +340,15 @@ ski/
 ## 🎯 核心功能演示流程
 
 1. **登录** → 进入智慧大屏，查看雪场 3D 全景与实时天气
-2. **后台管理 → 场地配置** → 设置 3D 建模四角经纬度 & 天气城市编码
-3. **后台管理 → 摄像头管理** → 添加摄像头（设置 3D 坐标），大屏实时标注
-4. **摄像头行 → 上传视频** → 选择事故视频上传，AI 自动分析
-5. **大屏左上角** → 事故智能定责面板，实时显示责任比例 & 法律条文依据
-6. **后台管理 → AI 助手小雪** → 上传知识库、测试查询、查看历史与性能统计
-7. **后台管理 → 天眼追踪** → 选择目标人员或颜色，发起跨摄像头追踪任务
-8. **后台管理 → 事故救援** → 查看 SOS 求救记录并完成事件处置闭环
-9. **大屏各面板** → 预警统计、安全指数、轨迹监控等实时联动
+2. **后台管理 → 雪境智判AI** → 上传事故视频或输入问题，AI 自动分析并生成定责报告
+3. **后台管理 → 场地配置** → 设置 3D 建模四角经纬度 & 天气城市编码
+4. **后台管理 → 摄像头管理** → 添加摄像头（设置 3D 坐标），大屏实时标注
+5. **摄像头行 → 上传视频** → 选择事故视频上传，AI 自动分析
+6. **大屏左上角** → 事故智能定责面板，实时显示责任比例 & 法律条文依据
+7. **后台管理 → 知识库管理** → 上传知识库、测试查询、查看历史与性能统计
+8. **后台管理 → 天眼追踪** → 选择目标人员或颜色，发起跨摄像头追踪任务
+9. **后台管理 → 事故救援** → 查看 SOS 求救记录并完成事件处置闭环
+10. **大屏各面板** → 预警统计、安全指数、轨迹监控等实时联动
 
 ---
 
@@ -347,6 +373,18 @@ ski/
 | 往期案例与雪联规则知识库 | 后台预警量化留痕 |
 |:---:|:---:|
 | ![往期案例与雪联规则知识库](assets/cases-and-fis-knowledge-base.png) | ![后台预警量化留痕](assets/alert-audit-trail.png) |
+
+---
+
+---
+
+### 雪境智判AI（对话式分析助手）
+
+| AI 对话主界面 | 事故分析报告弹窗 |
+|:---:|:---:|
+| ![AI对话主界面](assets/ai-chat-main.png) | ![事故分析报告](assets/ai-chat-report.png) |
+
+> 展示雪境智判AI 的对话式分析界面，支持上传事故视频或直接提问，流程链表可视化展示分析进度，完成后可查看结构化定责报告并导出 PDF。
 
 ---
 
@@ -414,7 +452,7 @@ ski/
 事故视频上传
       │
       ▼
- YOLOv8 视频分析
+ YOLOv11 视频分析
  ─────────────────────────────────────────
  · 检测滑雪者轨迹、速度变化、危险接近与异常行为
  · 识别逆行、碰撞风险、静止预警等事件

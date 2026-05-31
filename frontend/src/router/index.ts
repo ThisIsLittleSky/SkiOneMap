@@ -20,8 +20,13 @@ const router = createRouter({
       path: '/admin',
       component: () => import('@/views/admin/AdminLayout.vue'),
       meta: { requiresAuth: true },
-      redirect: '/admin/video',
+      redirect: '/admin/ai',
       children: [
+        {
+          path: 'ai',
+          name: 'AdminAi',
+          component: () => import('@/views/admin/AiChatView.vue')
+        },
         {
           path: 'video',
           name: 'AdminVideo',

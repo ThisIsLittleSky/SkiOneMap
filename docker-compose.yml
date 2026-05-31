@@ -34,6 +34,7 @@ services:
 
   backend:
     build: ./backend
+    image: ski-backend:latest
     container_name: ski-backend
     ports:
       - "8085:8085"
@@ -55,6 +56,7 @@ services:
 
   ai-engine:
     build: ./ai-engine
+    image: ski-ai-engine:latest
     container_name: ski-ai-engine
     ports:
       - "8001:8001"
@@ -67,7 +69,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key}
       QWEN_API_KEY: ${QWEN_API_KEY:-your_qwen_api_key}
       QWEN_BASE_URL: ${QWEN_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
-      QWEN_LLM_MODEL: ${QWEN_LLM_MODEL:-qwen3-max-2026-01-23}
+      QWEN_LLM_MODEL: ${QWEN_LLM_MODEL:-qwen3.6-flash}
       QWEN_EMBEDDING_MODEL: ${QWEN_EMBEDDING_MODEL:-tongyi-embedding-vision-plus-2026-03-06}
       USE_EMBEDDING: ${USE_EMBEDDING:-true}
     volumes:
@@ -80,6 +82,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: ski-frontend:latest
     container_name: ski-frontend
     ports:
       - "9095:80"

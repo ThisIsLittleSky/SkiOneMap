@@ -1,8 +1,13 @@
 FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y maven && \
+RUN sed -i 's|http://archive.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null; \
+    sed -i 's|http://security.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null; \
+    apt-get update && apt-get install -y maven && \
     rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /root/.m2 && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><settings><mirrors><mirror><id>aliyun</id><mirrorOf>central</mirrorOf><name>aliyun</name><url>https://maven.aliyun.com/repository/public</url></mirror></mirrors></settings>' > /root/.m2/settings.xml
 
 COPY pom.xml .
 RUN mvn dependency:resolve -B

@@ -4,7 +4,7 @@ import threading
 import redis
 from app.services.yolo_processor import YOLOProcessor
 from app.services.behavior_detector import detect_all
-from app.services.rag_engine import RAGEngine
+from app.services.rag_engine import get_rag_engine
 from app.services.result_callback import ResultCallback
 from app.services.video_annotator import VideoAnnotator
 
@@ -24,7 +24,7 @@ class TaskConsumer:
         self.task_queue = "video:tasks"
         self.running = False
         self.processor = YOLOProcessor()
-        self.rag_engine = RAGEngine()
+        self.rag_engine = get_rag_engine()
         self.callback = ResultCallback()
         self.annotator = VideoAnnotator()
 

@@ -5,7 +5,7 @@
       <div class="index-circle">
         <svg viewBox="0 0 120 120" class="circle-svg">
           <!-- 背景轨道 -->
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3a5f" stroke-width="8"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg-track)" stroke-width="8"/>
           <!-- 进度弧（从顶部顺时针，跨度 270°） -->
           <circle
             cx="60" cy="60" r="50" fill="none"
@@ -22,7 +22,7 @@
               :y1="60 + 46 * Math.sin((-135 + i * 33.75) * Math.PI / 180)"
               :x2="60 + 52 * Math.cos((-135 + i * 33.75) * Math.PI / 180)"
               :y2="60 + 52 * Math.sin((-135 + i * 33.75) * Math.PI / 180)"
-              stroke="#1e3a5f" stroke-width="1.5"
+              stroke="var(--bg-track)" stroke-width="1.5"
             />
           </g>
         </svg>
@@ -57,14 +57,14 @@ import { useAlertStore } from '@/stores/alertStore'
 const alertStore = useAlertStore()
 
 const dangerCount = computed(() =>
-  alertStore.alerts.flatMap(a => a.subAlerts || []).filter(s =>
+  alertStore.todayAlerts.flatMap(a => a.subAlerts || []).filter(s =>
     s.alertType === 'COLLISION_RISK' || s.alertType === 'STILL_DETECTED'
   ).length +
-  alertStore.alerts.filter(a => ['COLLISION_RISK', 'STILL_DETECTED'].includes(a.alertType)).length
+  alertStore.todayAlerts.filter(a => ['COLLISION_RISK', 'STILL_DETECTED'].includes(a.alertType)).length
 )
 
 const safetyIndex = computed(() =>
-  Math.max(0, Math.min(100, 100 - dangerCount.value * 8 - alertStore.alerts.filter(a => a.alertCount && a.alertCount > 0).length * 2))
+  Math.max(0, Math.min(100, 100 - dangerCount.value * 8 - alertStore.todayAlerts.filter(a => a.alertCount && a.alertCount > 0).length * 2))
 )
 const safetyPct = computed(() => safetyIndex.value)
 
@@ -89,15 +89,15 @@ const riskTip = computed(() => {
 })
 
 const factors = computed(() => [
-  { name: '逆行', val: Math.max(0, 100 - alertStore.alerts.filter(a => a.alertType === 'WRONG_WAY').length * 15), color: '#ff9800' },
-  { name: '超速', val: Math.max(0, 100 - alertStore.alerts.filter(a => a.alertType === 'OVERSPEED').length * 15), color: '#f44336' },
+  { name: '逆行', val: Math.max(0, 100 - alertStore.todayAlerts.filter(a => a.alertType === 'WRONG_WAY').length * 15), color: '#ff9800' },
+  { name: '超速', val: Math.max(0, 100 - alertStore.todayAlerts.filter(a => a.alertType === 'OVERSPEED').length * 15), color: '#f44336' },
   { name: '碰撞', val: Math.max(0, 100 - dangerCount.value * 20), color: '#e91e63' },
 ])
 </script>
 
 <style scoped>
 .panel { height: 100%; display: flex; flex-direction: column; }
-.panel-title { font-size: 12px; font-weight: 600; color: #00e5ff; letter-spacing: 1px; padding-bottom: 8px; border-bottom: 1px solid #1e3a5f33; margin-bottom: 8px; }
+.panel-title { font-size: 12px; font-weight: 600; color: var(--color-primary); letter-spacing: 1px; padding-bottom: 8px; border-bottom: 1px solid var(--panel-title-border); margin-bottom: 8px; }
 .panel-body { flex: 1; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
 .index-circle {
@@ -126,13 +126,13 @@ const factors = computed(() => [
   z-index: 1;
 }
 .index-value { font-size: 28px; font-weight: 800; line-height: 1; transition: color 0.5s; }
-.index-label { font-size: 9px; color: #90a4ae; margin-top: 1px; }
+.index-label { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
 .index-level { font-size: 11px; font-weight: 600; margin-top: 2px; }
 
 .factors { width: 100%; display: flex; flex-direction: column; gap: 5px; }
 .factor { display: flex; align-items: center; gap: 5px; }
-.factor-name { width: 28px; font-size: 10px; color: #546e7a; flex-shrink: 0; }
-.factor-bar-wrap { flex: 1; height: 4px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+.factor-name { width: 28px; font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+.factor-bar-wrap { flex: 1; height: 4px; background: var(--bg-track); border-radius: 2px; overflow: hidden; }
 .factor-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
 .factor-val { font-size: 10px; width: 22px; text-align: right; flex-shrink: 0; }
 
@@ -140,5 +140,5 @@ const factors = computed(() => [
 .risk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
 .risk-text { font-size: 11px; font-weight: 600; }
-.risk-tip { font-size: 10px; color: #37474f; margin-left: auto; }
+.risk-tip { font-size: 10px; color: var(--text-dark); margin-left: auto; }
 </style>

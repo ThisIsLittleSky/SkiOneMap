@@ -71,7 +71,7 @@ onUnmounted(() => {
 
 async function loadHistoryTasks() {
   try {
-    const res = await listTasks()
+    const res = await listTasks(true)
     const completedTasks = res.data.filter(t => t.status === 'COMPLETED').slice(0, 20)
     const details = await Promise.allSettled(
       completedTasks.map(t => getTaskTracks(t.id))

@@ -136,7 +136,7 @@ function getCameraName(cameraId?: number) {
 
 async function startAnalysis(videoId: number) {
   try {
-    const res = await createTask(videoId)
+    await createTask(videoId)
     await loadVideos()
   } catch (err: any) {
     console.error('创建任务失败:', err)
@@ -165,37 +165,37 @@ onMounted(() => {
 .video-list { margin-top: 8px; }
 .list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .header-actions { display: flex; gap: 10px; align-items: center; }
-h3 { font-size: 15px; color: #90caf9; }
+h3 { font-size: 15px; color: var(--text-secondary); }
 
 .camera-filter {
   padding: 5px 12px;
-  background: #1a2e44;
-  color: #90caf9;
-  border: 1px solid #2a4a6a;
+  background: var(--bg-admin-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-admin-input);
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
   outline: none;
 }
-.camera-filter:focus { border-color: #1976d2; }
+.camera-filter:focus { border-color: var(--color-admin-focus); }
 
 .btn-secondary {
   padding: 5px 12px;
-  background: #1a2e44;
-  color: #90caf9;
-  border: 1px solid #2a4a6a;
+  background: var(--bg-admin-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-admin-input);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
 }
 
-.tip { color: #37474f; font-size: 14px; padding: 20px 0; }
+.tip { color: var(--text-dark); font-size: 14px; padding: 20px 0; }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #1a2e44; }
-th { background: #0d1f33; color: #78909c; font-weight: 600; }
-tr:hover td { background: rgba(21,101,192,0.08); }
-tr.selected td { background: rgba(21,101,192,0.15); }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border-admin-table); }
+th { background: var(--bg-admin-card); color: var(--text-muted); font-weight: 600; }
+tr:hover td { background: var(--bg-card-hover); }
+tr.selected td { background: var(--bg-card-active); }
 
 .filename-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .actions-cell { display: flex; gap: 8px; align-items: center; }
@@ -208,14 +208,14 @@ tr.selected td { background: rgba(21,101,192,0.15); }
 
 .btn-play { padding: 4px 12px; font-size: 12px; background: #0d47a1; color: #90caf9; border: 1px solid #1565c0; border-radius: 4px; cursor: pointer; }
 .btn-play.annotated { background: rgba(46,125,50,0.16); color: #a5d6a7; border-color: #2e7d32; }
-.btn-analyze { padding: 4px 12px; font-size: 12px; background: transparent; color: #4caf50; border: 1px solid #2e7d32; border-radius: 4px; cursor: pointer; }
+.btn-analyze { padding: 4px 12px; font-size: 12px; background: transparent; color: var(--color-success); border: 1px solid #2e7d32; border-radius: 4px; cursor: pointer; }
 .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-.player-modal { background: #0d1f33; border: 1px solid #1e3a5f; border-radius: 10px; overflow: hidden; width: 80vw; max-width: 900px; }
-.player-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #1e3a5f; }
-.player-title { font-size: 14px; color: #90caf9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.player-close { background: none; border: none; color: #78909c; font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; }
-.player-close:hover { color: #fff; }
+.player-modal { background: var(--bg-admin-card); border: 1px solid var(--border-primary); border-radius: 10px; overflow: hidden; width: 80vw; max-width: 900px; }
+.player-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border-primary); }
+.player-title { font-size: 14px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-close { background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.player-close:hover { color: var(--text-white); }
 .video-el { width: 100%; max-height: 70vh; background: #000; display: block; }
 </style>

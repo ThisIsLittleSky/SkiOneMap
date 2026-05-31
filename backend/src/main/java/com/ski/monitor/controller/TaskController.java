@@ -111,7 +111,10 @@ public class TaskController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listTasks() {
+    public ResponseEntity<?> listTasks(@RequestParam(defaultValue = "false") boolean today) {
+        if (today) {
+            return ResponseEntity.ok(taskService.listToday());
+        }
         return ResponseEntity.ok(taskService.listAll());
     }
 

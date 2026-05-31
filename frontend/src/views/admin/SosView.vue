@@ -153,7 +153,7 @@ onMounted(() => {
 <style scoped>
 .sos-view {
   padding: 24px;
-  color: #e3f2fd;
+  color: var(--text-primary);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -169,15 +169,15 @@ onMounted(() => {
 .title {
   font-size: 20px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-white);
   margin: 0;
 }
 
 .content {
   flex: 1;
-  background: #112233;
+  background: var(--bg-admin-card);
   border-radius: 8px;
-  border: 1px solid #1e3a5f;
+  border: 1px solid var(--border-primary);
   padding: 20px;
   overflow-y: auto;
 }
@@ -198,18 +198,18 @@ onMounted(() => {
 
 .sos-table th {
   padding: 12px 16px;
-  color: #90caf9;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 14px;
-  border-bottom: 1px solid #1e3a5f;
-  background: rgba(30, 58, 95, 0.3);
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-card-hover);
 }
 
 .sos-table td {
   padding: 16px;
   font-size: 14px;
-  border-bottom: 1px solid #1e3a5f;
-  color: #e0e0e0;
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
 }
 
 .row-unhandled {
