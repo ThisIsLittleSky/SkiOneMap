@@ -217,7 +217,7 @@ open http://localhost:9095
 | 镜像 | Dockerfile | 构建方式 |
 |------|-----------|---------|
 | `ski-backend` | `backend/Dockerfile` | Maven 多阶段构建（全量 `mvn clean package`） |
-| `ski-ai-engine` | `ai-engine/Dockerfile` | pip install + 源码 COPY |
+| `ski-ai-engine` | `ai-engine/Dockerfile` | pip install + 预下载模型（YOLO/ResNet50） + 源码 COPY |
 | `ski-frontend` | `frontend/Dockerfile` | `npm install` → `npm run build` → Nginx |
 
 > 注意：backend 使用 `mvn clean package` 全量编译，首次构建约 3-8 分钟（视网络而定），后续若仅改源码、未改 `pom.xml`，建议将 `pom.xml` 单独 COPY 并预拉取依赖以加速构建。

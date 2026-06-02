@@ -2,6 +2,9 @@ name: ski-ai
 channels:
   - defaults
   - conda-forge
+  - pytorch
 dependencies:
   - python=3.11
   - pip
+  - pytorch=2.7.1
+  - torchvision=0.22.1
