@@ -8,7 +8,23 @@
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6db33f?logo=spring)](https://spring.io/projects/spring-boot)[![FastAPI](https://img.shields.io/badge/FastAPI-0.11x-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-r183-black?logo=three.js)](https://threejs.org/)
 
-> 通过”一张图“，掌控雪场事故、实时分析
+> 通过”一张图”，掌控雪场事故、实时分析
+
+<p align=”center”>
+  <a href=”#-项目起源”>📖 项目起源</a> ·
+  <a href=”#-功能截图”>🖼️ 功能截图</a> ·
+  <a href=”#-业务亮点”>✨ 业务亮点</a> ·
+  <a href=”#-最近更新”>🆕 最近更新</a> ·
+  <a href=”#-系统架构”>🏗️ 系统架构</a> ·
+  <a href=”#-环境变量配置必须提前设置”>⚙️ 环境变量</a> ·
+  <a href=”#-快速启动docker-compose”>🚀 快速启动</a> ·
+  <a href=”#-源码启动开发模式”>🛠️ 源码启动</a> ·
+  <a href=”#-目录结构”>📁 目录结构</a> ·
+  <a href=”#-核心功能演示流程”>🎯 演示流程</a> ·
+  <a href=”#-智能定责ai-如何判断滑雪事故责任”>⚖️ 智能定责</a> ·
+  <a href=”#-数据库-er-简图”>🗂️ 数据库 ER</a> ·
+  <a href=”#-开源协议”>📜 开源协议</a>
+</p>
 
 </div>
 
@@ -18,10 +34,85 @@
 
 2024 年，团队以"元雪迹——更符合当代年轻人的滑雪社交平台"为课题申报**大学生创新创业训练计划（大创）**，并于结项时获评 **2024 年大创省级优秀结项**（[查看结项公示](https://cxcyxy.zjku.edu.cn/col/1739865561363/2025/05/23/1747966174383.html)）。
 
-在大创阶段的技术积累基础上，团队进一步将系统升级为完整的 **数字孪生 **工程化平台，并从小的出发点开始，开始做资源整合 **以滑雪事故量化定则为主题，打造“硬件-软件-法规分析“的全链路商业模式**，此项目为软件部分。
+在大创阶段的技术积累基础上，团队进一步将系统升级为完整的 **数字孪生 **工程化平台，并从小的出发点开始，开始做资源整合 **以滑雪事故量化定则为主题，打造”硬件-软件-法规分析”的全链路商业模式**，此项目为软件部分。
+
+2026 年，团队以”雪境智判——雪地场景多模态 AI 事故辅助责任判定体系”荣获 **”挑战杯”全国大学生系列科技学术竞赛河北省一等奖**。
+
+| 挑战杯布展 | 挑战杯讲解 |
+|:---:|:---:|
+| ![挑战杯布展](assets/挑战杯布展图.jpg) | ![挑战杯讲解](assets/挑战杯讲解图.jpg) |
 
 
+---
 
+## 🖼️ 功能截图
+
+### 智慧大屏总览
+
+<p align="center">
+  <img src="assets/smart-screen-overview.png" width="800" alt="智慧大屏总览" />
+</p>
+
+> 基于 Three.js 的雪场 3D 数字孪生大屏，集成事故定责面板、预警统计、摄像头状态、雪道安全指数等 6 大实时数据面板，并接入国家气象局实时天气。
+
+---
+
+### 后台管理模块
+
+| 摄像头管理 | 事故视频管理 |
+|:---:|:---:|
+| ![摄像头管理](assets/camera-management.png) | ![事故视频管理](assets/incident-video-management.png) |
+
+| 往期案例与雪联规则知识库 | 后台预警量化留痕 |
+|:---:|:---:|
+| ![往期案例与雪联规则知识库](assets/cases-and-fis-knowledge-base.png) | ![后台预警量化留痕](assets/alert-audit-trail.png) |
+
+---
+
+---
+
+### 雪境智判AI（对话式分析助手）
+
+| AI 对话主界面 | 事故分析报告弹窗 |
+|:---:|:---:|
+| ![AI对话主界面](assets/ai-chat-main.png) | ![事故分析报告](assets/ai-chat-report.png) |
+
+> 展示雪境智判AI 的对话式分析界面，支持上传事故视频或直接提问，流程链表可视化展示分析进度，完成后可查看结构化定责报告并导出 PDF。
+
+---
+
+### 雪境智判-滑雪伴侣
+
+<p align="center">
+  <img src="assets/readme-ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
+</p>
+<p align="center">
+  <img src="assets/ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
+</p>
+
+
+> 展示事故救援记录管理页，突出求救模式、定位信息、设备信息和处理状态，体现"滑雪伴侣"在应急响应中的辅助价值。
+
+---
+
+### 雪境智判-AI助手小雪
+
+| 知识库管理总览 | 测试查询与结果展示 |
+|:---:|:---:|
+| ![AI助手小雪-知识库管理](assets/knowledge-base-overview.png) | ![AI助手小雪-测试查询](assets/test-query-results.png) |
+
+> 展示 AI 助手小雪的知识库运维、查询测试、责任占比可视化、参考文献引用与处理建议输出能力，突出优化后的 RAG 工作流。
+
+---
+
+### 雪境智判-天眼追踪
+
+| 天眼追踪主界面 | 按颜色搜索候选目标 |
+|:---:|:---:|
+| ![天眼追踪主界面](assets/tracking-main-view.png) | ![天眼追踪-按颜色搜索](assets/tracking-color-search.png) |
+
+
+> 展示从源视频选人、颜色搜索、摄像头选择到追踪结果返回的完整流程，体现天眼追踪的跨摄像头检索与智能研判能力。
 
 ---
 
@@ -349,77 +440,6 @@ ski/
 8. **后台管理 → 天眼追踪** → 选择目标人员或颜色，发起跨摄像头追踪任务
 9. **后台管理 → 事故救援** → 查看 SOS 求救记录并完成事件处置闭环
 10. **大屏各面板** → 预警统计、安全指数、轨迹监控等实时联动
-
----
-
-## 🖼️ 功能截图
-
-### 智慧大屏总览
-
-<p align="center">
-  <img src="assets/smart-screen-overview.png" width="800" alt="智慧大屏总览" />
-</p>
-
-> 基于 Three.js 的雪场 3D 数字孪生大屏，集成事故定责面板、预警统计、摄像头状态、雪道安全指数等 6 大实时数据面板，并接入国家气象局实时天气。
-
----
-
-### 后台管理模块
-
-| 摄像头管理 | 事故视频管理 |
-|:---:|:---:|
-| ![摄像头管理](assets/camera-management.png) | ![事故视频管理](assets/incident-video-management.png) |
-
-| 往期案例与雪联规则知识库 | 后台预警量化留痕 |
-|:---:|:---:|
-| ![往期案例与雪联规则知识库](assets/cases-and-fis-knowledge-base.png) | ![后台预警量化留痕](assets/alert-audit-trail.png) |
-
----
-
----
-
-### 雪境智判AI（对话式分析助手）
-
-| AI 对话主界面 | 事故分析报告弹窗 |
-|:---:|:---:|
-| ![AI对话主界面](assets/ai-chat-main.png) | ![事故分析报告](assets/ai-chat-report.png) |
-
-> 展示雪境智判AI 的对话式分析界面，支持上传事故视频或直接提问，流程链表可视化展示分析进度，完成后可查看结构化定责报告并导出 PDF。
-
----
-
-### 雪境智判-滑雪伴侣
-
-<p align="center">
-  <img src="assets/readme-ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
-</p>
-<p align="center">
-  <img src="assets/ski-companion-sos.png" width="800" alt="雪境智判-滑雪伴侣-SOS记录管理" />
-</p>
-
-
-> 展示事故救援记录管理页，突出求救模式、定位信息、设备信息和处理状态，体现“滑雪伴侣”在应急响应中的辅助价值。
-
----
-
-### 雪境智判-AI助手小雪
-
-| 知识库管理总览 | 测试查询与结果展示 |
-|:---:|:---:|
-| ![AI助手小雪-知识库管理](assets/knowledge-base-overview.png) | ![AI助手小雪-测试查询](assets/test-query-results.png) |
-
-> 展示 AI 助手小雪的知识库运维、查询测试、责任占比可视化、参考文献引用与处理建议输出能力，突出优化后的 RAG 工作流。
-
----
-
-### 雪境智判-天眼追踪
-
-| 天眼追踪主界面 | 按颜色搜索候选目标 |
-|:---:|:---:|
-| ![天眼追踪主界面](assets/tracking-main-view.png) | ![天眼追踪-按颜色搜索](assets/tracking-color-search.png) |
-
-
-> 展示从源视频选人、颜色搜索、摄像头选择到追踪结果返回的完整流程，体现天眼追踪的跨摄像头检索与智能研判能力。
 
 ---
 
